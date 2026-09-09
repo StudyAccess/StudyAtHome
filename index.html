@@ -342,7 +342,18 @@
             </div>
             <div id="exploreGrid" class="explore-grid"></div>
         </section>
-
+        <!-- MOVE MODAL -->
+        <div id="moveModal" class="modal hidden">
+            <div class="modal-content glass">
+                <h4><i class="fas fa-arrows-alt"></i> Move To Folder</h4>
+                <p>Selected items will move to:</p>
+                <select id="moveTargetSelect" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);margin:10px 0;"></select>
+                <div class="modal-actions">
+                    <button id="moveCancel" class="btn-ghost">Cancel</button>
+                    <button id="moveOk" class="btn-primary">Move</button>
+                </div>
+            </div>
+        </div>   
     </main>
 
     <!-- PDF VIEWER MODAL -->
