@@ -577,6 +577,17 @@ label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 6px
 .perm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; }
 .perm-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
 
+.badge-admin, .badge-guest {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+.badge-admin { background: var(--gradient); color: #fff; }
+.badge-guest { background: var(--surface); border: 1px solid var(--glass-border); color: var(--text2); }
+.perm-path { font-size: 13px; font-family: monospace; }   
+
 /* ─── MODAL ─── */
 .modal {
   position: fixed; inset: 0;
