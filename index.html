@@ -1,379 +1,376 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Study Premium Learning</title>
-    <link rel="stylesheet" href="style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Premium Learning</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ===== LOGIN OVERLAY ===== -->
-<div id="loginOverlay" class="login-overlay">
-    <div class="login-card glass">
-        <div class="login-logo">
-            <i class="fas fa-graduation-cap"></i>
-        </div>
-        <h1>Study Premium Learning</h1>
-        <p class="login-sub">Sign in to continue</p>
-        <div class="login-tabs">
-            <button class="login-tab active" data-role="guest">Guest</button>
-            <button class="login-tab" data-role="admin">Admin</button>
-        </div>
-        <div class="login-form">
-            <input type="text" id="loginUser" placeholder="Username" autocomplete="off"/>
-            <input type="password" id="loginPass" placeholder="Password" autocomplete="off"/>
-            <button id="loginBtn" class="btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-        </div>
-        <div class="login-hint">
-            <small>Admin: admin / admin123 &nbsp;|&nbsp; Guest: any / any</small>
-        </div>
+<!-- ═══════════════════ LOGIN PAGE ═══════════════════ -->
+<div id="loginPage" class="login-page">
+  <div class="login-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="login-card glass">
+    <div class="login-logo">
+      <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+      <h1>Study Premium</h1>
+      <p class="subtitle">Learning Platform</p>
     </div>
+    <div class="login-tabs">
+      <button class="tab-btn active" data-tab="admin">Admin</button>
+      <button class="tab-btn" data-tab="guest">Guest</button>
+    </div>
+    <form id="loginForm">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="loginUser" placeholder="Username" required>
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="loginPass" placeholder="Password" required>
+        <i class="fas fa-eye pw-toggle" id="pwToggle"></i>
+      </div>
+      <div class="login-error" id="loginError"></div>
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+    </form>
+    <div class="login-hint">
+      <small>Default Admin: <b>admin / admin123</b></small>
+    </div>
+  </div>
 </div>
 
-<!-- ===== MAIN APP ===== -->
+<!-- ═══════════════════ MAIN APP ═══════════════════ -->
 <div id="app" class="app hidden">
 
-    <!-- TOP BAR -->
-    <nav class="topbar glass">
-        <div class="topbar-left">
-            <button id="sidebarToggle" class="icon-btn" title="Toggle Sidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="topbar-title">
-                <i class="fas fa-graduation-cap logo-icon"></i>
-                <span>Study Premium Learning</span>
-            </div>
-        </div>
-        <div class="topbar-right">
-            <button id="pieMenuBtn" class="icon-btn" title="Pie Menu">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
-            <button id="themeToggle" class="icon-btn theme-toggle" title="Change Theme">
-                <i class="fas fa-palette"></i>
-            </button>
-            <button id="userBtn" class="icon-btn" title="User">
-                <i class="fas fa-user"></i>
-            </button>
-        </div>
-    </nav>
-
-    <!-- PIE MENU -->
-    <div id="pieMenu" class="pie-menu hidden">
-        <div class="pie-item" data-action="theme"><i class="fas fa-palette"></i></div>
-        <div class="pie-item" data-action="settings"><i class="fas fa-cog"></i></div>
-        <div class="pie-item" data-action="about"><i class="fas fa-info-circle"></i></div>
-        <div class="pie-item" data-action="logout"><i class="fas fa-sign-out-alt"></i></div>
+  <!-- Top Bar -->
+  <header class="topbar glass">
+    <button class="icon-btn" id="sidebarToggle" title="Toggle Sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="topbar-logo">
+      <div class="logo-icon small"><i class="fas fa-graduation-cap"></i></div>
+      <span class="logo-text">Study Premium Learning</span>
     </div>
-
-    <!-- THEME PANEL -->
-    <div id="themePanel" class="theme-panel glass hidden">
-        <h4>Themes</h4>
-        <div class="theme-grid">
-            <button class="theme-swatch" data-theme="light" title="Light"><span>☀️</span></button>
-            <button class="theme-swatch" data-theme="dark" title="Dark"><span>🌙</span></button>
-            <button class="theme-swatch" data-theme="ocean" title="Ocean"><span>🌊</span></button>
-            <button class="theme-swatch" data-theme="forest" title="Forest"><span>🌲</span></button>
-            <button class="theme-swatch" data-theme="rose" title="Rose"><span>🌹</span></button>
-            <button class="theme-swatch" data-theme="lavender" title="Lavender"><span>💜</span></button>
-            <button class="theme-swatch" data-theme="midnight" title="Midnight"><span>🌌</span></button>
+    <div class="topbar-right">
+      <!-- Theme Pie Menu -->
+      <div class="theme-menu" id="themeMenu">
+        <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Themes">
+          <i class="fas fa-palette"></i>
+        </button>
+        <div class="theme-pie hidden" id="themePie">
+          <button class="theme-dot" data-theme="light" title="Light"><span class="dot dot-light"></span><small>Light</small></button>
+          <button class="theme-dot" data-theme="dark" title="Dark"><span class="dot dot-dark"></span><small>Dark</small></button>
+          <button class="theme-dot" data-theme="ocean" title="Ocean"><span class="dot dot-ocean"></span><small>Ocean</small></button>
+          <button class="theme-dot" data-theme="forest" title="Forest"><span class="dot dot-forest"></span><small>Forest</small></button>
+          <button class="theme-dot" data-theme="rose" title="Rose"><span class="dot dot-rose"></span><small>Rose</small></button>
+          <button class="theme-dot" data-theme="lavender" title="Lavender"><span class="dot dot-lavender"></span><small>Lavender</small></button>
+          <button class="theme-dot" data-theme="midnight" title="Midnight"><span class="dot dot-midnight"></span><small>Midnight</small></button>
         </div>
+      </div>
+      <div class="user-info">
+        <span id="currentUserLabel">Admin</span>
+        <button class="icon-btn" id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
     </div>
+  </header>
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar glass">
-        <div class="sidebar-header">
-            <h3><i class="fas fa-compass"></i> Menu</h3>
-            <button id="sidebarCollapse" class="icon-btn"><i class="fas fa-chevron-left"></i></button>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="#" class="nav-item active" data-view="home">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Home</span>
-            </a>
-            <a href="#" class="nav-item" data-view="add">
-                <i class="fas fa-plus-circle"></i>
-                <span class="nav-text">Add File / Link</span>
-            </a>
-            <a href="#" class="nav-item" data-view="explore">
-                <i class="fas fa-folder-open"></i>
-                <span class="nav-text">Explore</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="logoutBtn" class="btn-ghost">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="nav-text">Logout</span>
-            </button>
-        </div>
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass" id="sidebar">
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="nav-item active" data-page="home">
+            <i class="fas fa-home"></i>
+            <span class="nav-label">Home</span>
+          </li>
+          <li class="nav-item" data-page="addfile">
+            <i class="fas fa-plus-circle"></i>
+            <span class="nav-label">Add File / Link</span>
+          </li>
+          <li class="nav-item" data-page="explore">
+            <i class="fas fa-folder-open"></i>
+            <span class="nav-label">Explore</span>
+          </li>
+          <li class="nav-item" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span class="nav-label">Settings</span>
+          </li>
+        </ul>
+      </nav>
     </aside>
 
-    <!-- CONTENT AREA -->
-    <main id="content" class="content">
+    <!-- Content Area -->
+    <main class="content">
 
-        <!-- HOME VIEW -->
-        <section id="view-home" class="view active">
-            <div class="home-layout">
-                <!-- PLAYER AREA (50%) -->
-                <div class="player-area">
-                    <div class="video-container" id="videoContainer">
-                        <video id="videoPlayer" playsinline></video>
-
-                        <!-- PLAYER OVERLAY CONTROLS -->
-                        <div id="playerOverlay" class="player-overlay">
-                            <!-- Top Left -->
-                            <div class="ctrl-tl">
-                                <button id="ctrlLock" class="ctrl-btn" title="Lock Controls"><i class="fas fa-lock-open"></i></button>
-                                <span id="ctrlTitle" class="ctrl-title">No video loaded</span>
-                            </div>
-
-                            <!-- Top Right -->
-                            <div class="ctrl-tr">
-                                <button id="ctrlLoop" class="ctrl-btn" title="Loop"><i class="fas fa-redo"></i></button>
-                                <button id="ctrlAspect" class="ctrl-btn" title="Aspect Ratio"><i class="fas fa-expand"></i></button>
-                                <div class="ui-scaler">
-                                    <button id="ctrlScaleDown" class="ctrl-btn-sm">−0.5</button>
-                                    <span id="ctrlScaleVal">100%</span>
-                                    <button id="ctrlScaleUp" class="ctrl-btn-sm">+0.5</button>
-                                </div>
-                            </div>
-
-                            <!-- Left Side -->
-                            <div class="ctrl-left">
-                                <button id="ctrlReverse" class="ctrl-btn" title="Reverse (dbl-tap left)"><i class="fas fa-backward"></i></button>
-                                <button id="ctrlBrightness" class="ctrl-btn" title="Brightness (swipe up/down)"><i class="fas fa-sun"></i></button>
-                            </div>
-
-                            <!-- Center -->
-                            <div class="ctrl-center">
-                                <button id="ctrlPlayPause" class="ctrl-btn ctrl-btn-lg"><i class="fas fa-play"></i></button>
-                            </div>
-
-                            <!-- Right Side -->
-                            <div class="ctrl-right">
-                                <button id="ctrlForward" class="ctrl-btn" title="Forward (dbl-tap right)"><i class="fas fa-forward"></i></button>
-                                <button id="ctrlVolume" class="ctrl-btn" title="Volume (swipe up/down)"><i class="fas fa-volume-up"></i></button>
-                            </div>
-
-                            <!-- Bottom -->
-                            <div class="ctrl-bottom">
-                                <div class="progress-row">
-                                    <span id="ctrlCurrentTime" class="time-label">0:00</span>
-                                    <div class="progress-bar" id="progressBar">
-                                        <div class="progress-buffer" id="progressBuffer"></div>
-                                        <div class="progress-fill" id="progressFill"></div>
-                                        <div class="progress-head" id="progressHead"></div>
-                                    </div>
-                                    <span id="ctrlDuration" class="time-label">0:00</span>
-                                </div>
-                                <div class="ctrl-bottom-row">
-                                    <div class="ctrl-bottom-left">
-                                        <button id="ctrlPrev" class="ctrl-btn" title="Previous"><i class="fas fa-step-backward"></i></button>
-                                        <button id="ctrlPlayPause2" class="ctrl-btn" title="Play/Pause"><i class="fas fa-play"></i></button>
-                                        <button id="ctrlNext" class="ctrl-btn" title="Next"><i class="fas fa-step-forward"></i></button>
-                                    </div>
-                                    <div class="ctrl-bottom-right">
-                                        <button id="ctrlSpeedDown" class="ctrl-btn-sm" title="-0.05x">−</button>
-                                        <span id="ctrlSpeedVal" class="speed-val">1.0x</span>
-                                        <button id="ctrlSpeedUp" class="ctrl-btn-sm" title="+0.1x">+</button>
-                                        <button id="ctrlSpeed" class="ctrl-btn" title="Speed"><i class="fas fa-tachometer-alt"></i></button>
-                                        <button id="ctrlQuality" class="ctrl-btn" title="Quality"><i class="fas fa-hdd"></i></button>
-                                        <button id="ctrlPlaylist" class="ctrl-btn" title="Playlist"><i class="fas fa-list"></i></button>
-                                        <button id="ctrlPip" class="ctrl-btn" title="PiP"><i class="fas fa-clone"></i></button>
-                                        <button id="ctrlFullscreen" class="ctrl-btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Speed Menu -->
-                            <div id="speedMenu" class="player-menu hidden">
-                                <div class="menu-item" data-speed="0.7">0.7x</div>
-                                <div class="menu-item" data-speed="1.0">1.0x</div>
-                                <div class="menu-item" data-speed="1.5">1.5x</div>
-                                <div class="menu-item" data-speed="2.0">2.0x</div>
-                                <div class="menu-item" data-speed="2.5">2.5x</div>
-                                <div class="menu-item" data-speed="3.0">3.0x</div>
-                                <div class="menu-item" data-speed="3.5">3.5x</div>
-                                <div class="menu-item" data-speed="4.0">4.0x</div>
-                            </div>
-
-                            <!-- Quality Menu -->
-                            <div id="qualityMenu" class="player-menu hidden">
-                                <div class="menu-item" data-quality="auto">Auto</div>
-                                <div class="menu-item" data-quality="1040">1040p</div>
-                                <div class="menu-item" data-quality="720">720p</div>
-                                <div class="menu-item" data-quality="480">480p</div>
-                                <div class="menu-item" data-quality="360">360p</div>
-                                <div class="menu-item" data-quality="240">240p</div>
-                                <div class="menu-item" data-quality="144">144p</div>
-                            </div>
-
-                            <!-- Playlist Panel -->
-                            <div id="playlistPanel" class="playlist-panel hidden">
-                                <div class="playlist-header">
-                                    <h4>Playlist</h4>
-                                    <button id="playlistClose" class="ctrl-btn"><i class="fas fa-times"></i></button>
-                                </div>
-                                <div id="playlistItems" class="playlist-items"></div>
-                            </div>
-
-                            <!-- Brightness Overlay -->
-                            <div id="brightnessOverlay" class="brightness-overlay"></div>
-                            <!-- Volume Overlay -->
-                            <div id="volumeOverlay" class="volume-overlay">
-                                <div class="volume-bar"><div class="volume-fill" id="volumeFill"></div></div>
-                            </div>
+      <!-- HOME PAGE -->
+      <section id="page-home" class="page-section">
+        <div class="home-layout">
+          <!-- Video Player Container -->
+          <div class="player-wrapper" id="playerWrapper">
+            <div class="video-container" id="videoContainer">
+              <video id="videoPlayer" playsinline></video>
+              <!-- Overlay Controls -->
+              <div class="player-overlay" id="playerOverlay">
+                <!-- Top Left -->
+                <div class="ctrl-top-left">
+                  <button class="ctrl-btn" id="ctrlLock" title="Lock UI"><i class="fas fa-lock"></i></button>
+                  <span class="video-title" id="videoTitle">No video selected</span>
+                </div>
+                <!-- Top Right -->
+                <div class="ctrl-top-right">
+                  <button class="ctrl-btn" id="ctrlLoop" title="Loop"><i class="fas fa-redo"></i></button>
+                  <button class="ctrl-btn" id="ctrlRatio" title="Aspect Ratio"><i class="fas fa-expand"></i></button>
+                  <div class="ui-scaler">
+                    <button class="ctrl-btn" id="scaleDown" title="UI Scale -"><i class="fas fa-minus"></i></button>
+                    <span class="scale-label" id="scaleLabel">100%</span>
+                    <button class="ctrl-btn" id="scaleUp" title="UI Scale +"><i class="fas fa-plus"></i></button>
+                  </div>
+                </div>
+                <!-- Left Side -->
+                <div class="ctrl-left">
+                  <button class="ctrl-btn" id="ctrlRewind30" title="-30s"><i class="fas fa-rotate-left"></i></button>
+                  <button class="ctrl-btn" id="ctrlRewind10" title="-10s"><i class="fas fa-backward"></i></button>
+                </div>
+                <!-- Center -->
+                <div class="ctrl-center">
+                  <button class="ctrl-btn ctrl-play" id="ctrlPlay" title="Play/Pause"><i class="fas fa-play"></i></button>
+                </div>
+                <!-- Right Side -->
+                <div class="ctrl-right">
+                  <button class="ctrl-btn" id="ctrlForward10" title="+10s"><i class="fas fa-forward"></i></button>
+                  <button class="ctrl-btn" id="ctrlForward30" title="+30s"><i class="fas fa-rotate-right"></i></button>
+                </div>
+                <!-- Volume/Brightness Overlay -->
+                <div class="gesture-overlay hidden" id="gestureOverlay">
+                  <div class="gesture-icon" id="gestureIcon"><i class="fas fa-volume-up"></i></div>
+                  <div class="gesture-bar"><div class="gesture-fill" id="gestureFill"></div></div>
+                  <span class="gesture-value" id="gestureValue">50%</span>
+                </div>
+                <!-- Bottom Bar -->
+                <div class="ctrl-bottom">
+                  <div class="progress-row">
+                    <span class="time-label" id="currentTime">0:00</span>
+                    <div class="progress-bar" id="progressBar">
+                      <div class="progress-buffer" id="progressBuffer"></div>
+                      <div class="progress-fill" id="progressFill"></div>
+                      <div class="progress-head" id="progressHead"></div>
+                    </div>
+                    <span class="time-label" id="timeLeft">-0:00</span>
+                  </div>
+                  <div class="ctrl-bottom-row">
+                    <div class="ctrl-bottom-left">
+                      <button class="ctrl-btn" id="ctrlPrev" title="Previous"><i class="fas fa-step-backward"></i></button>
+                      <button class="ctrl-btn" id="ctrlPlayBottom" title="Play/Pause"><i class="fas fa-play"></i></button>
+                      <button class="ctrl-btn" id="ctrlNext" title="Next"><i class="fas fa-step-forward"></i></button>
+                    </div>
+                    <div class="ctrl-bottom-right">
+                      <button class="ctrl-btn" id="speedDown" title="Speed -"><i class="fas fa-tachometer-alt"></i>−</button>
+                      <span class="speed-label" id="speedLabel">1.0x</span>
+                      <button class="ctrl-btn" id="speedUp" title="Speed +"><i class="fas fa-tachometer-alt"></i>+</button>
+                      <div class="ctrl-dropdown" id="speedMenu">
+                        <button class="ctrl-btn" id="speedMenuBtn"><i class="fas fa-gauge-high"></i> Speed</button>
+                        <div class="dropdown-menu hidden" id="speedDropdown">
+                          <div class="dd-item" data-speed="0.7">0.7x</div>
+                          <div class="dd-item" data-speed="1.0">1.0x</div>
+                          <div class="dd-item" data-speed="1.5">1.5x</div>
+                          <div class="dd-item" data-speed="2.0">2.0x</div>
+                          <div class="dd-item" data-speed="2.5">2.5x</div>
+                          <div class="dd-item" data-speed="3.0">3.0x</div>
+                          <div class="dd-item" data-speed="3.5">3.5x</div>
+                          <div class="dd-item" data-speed="4.0">4.0x</div>
                         </div>
-                    </div>
-
-                    <!-- PREVIOUS PLAYED / PLAYLIST BELOW PLAYER -->
-                    <div class="playlist-below">
-                        <div class="playlist-below-header">
-                            <h4><i class="fas fa-history"></i> Playlist</h4>
-                            <div class="layout-toggle">
-                                <button id="layoutGrid" class="layout-btn active" title="Grid"><i class="fas fa-th"></i></button>
-                                <button id="layoutList" class="layout-btn" title="List"><i class="fas fa-list"></i></button>
-                            </div>
+                      </div>
+                      <div class="ctrl-dropdown" id="qualityMenu">
+                        <button class="ctrl-btn" id="qualityMenuBtn"><i class="fas fa-tv"></i> Quality</button>
+                        <div class="dropdown-menu hidden" id="qualityDropdown">
+                          <div class="dd-item" data-quality="1040">1040p</div>
+                          <div class="dd-item" data-quality="720">720p</div>
+                          <div class="dd-item" data-quality="480">480p</div>
+                          <div class="dd-item" data-quality="360">360p</div>
+                          <div class="dd-item" data-quality="240">240p</div>
+                          <div class="dd-item" data-quality="144">144p</div>
                         </div>
-                        <div id="playlistBelow" class="playlist-below-items grid-layout"></div>
+                      </div>
+                      <button class="ctrl-btn" id="ctrlPlaylist" title="Playlist"><i class="fas fa-list"></i></button>
+                      <button class="ctrl-btn" id="ctrlPip" title="Picture in Picture"><i class="fas fa-clone"></i></button>
+                      <button class="ctrl-btn" id="ctrlFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
                     </div>
+                  </div>
                 </div>
-
-                <!-- RIGHT PANEL: PDF + Video List (Desktop) -->
-                <div class="side-panel">
-                    <div class="side-panel-section">
-                        <h4><i class="fas fa-file-pdf"></i> PDFs</h4>
-                        <div id="pdfList" class="pdf-list"></div>
-                    </div>
-                    <div class="side-panel-section">
-                        <h4><i class="fas fa-video"></i> Videos</h4>
-                        <div id="sideVideoList" class="side-video-list"></div>
-                    </div>
+              </div>
+              <!-- Playlist Panel (slides in) -->
+              <div class="playlist-panel hidden" id="playlistPanel">
+                <div class="playlist-header">
+                  <h3><i class="fas fa-list"></i> Playlist</h3>
+                  <button class="icon-btn" id="closePlaylist"><i class="fas fa-times"></i></button>
                 </div>
+                <div class="playlist-list" id="playlistList"></div>
+              </div>
             </div>
-        </section>
+          </div>
 
-        <!-- ADD FILE / LINK VIEW -->
-        <section id="view-add" class="view">
-            <div class="add-layout">
-                <!-- LEFT: File Explorer -->
-                <div class="add-left">
-                    <h3><i class="fas fa-folder-tree"></i> File Explorer</h3>
-                    <div class="explorer-path" id="explorerPath">/</div>
-                    <div class="explorer-actions">
-                        <button id="newFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Folder</button>
-                        <button id="newSubFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Subfolder</button>
-                        <button id="upDirBtn" class="btn-secondary"><i class="fas fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div id="explorerContent" class="explorer-content"></div>
-
-                    <!-- TXT Upload -->
-                    <div class="txt-upload">
-                        <h4><i class="fas fa-file-import"></i> Import from .txt</h4>
-                        <input type="file" id="txtFileInput" accept=".txt" class="file-input"/>
-                        <p class="txt-format-hint">
-                            Format: Subject+Topic+Title+Url / Subject+Title+Url / Topic+Title+Url / Title+Url / Url
-                        </p>
-                    </div>
-
-                    <!-- Direct File Upload -->
-                    <div class="file-upload">
-                        <h4><i class="fas fa-upload"></i> Upload Video / Image</h4>
-                        <input type="file" id="fileInput" accept="video/*,image/*,.mp4,.m3u8,.pdf" class="file-input" multiple/>
-                    </div>
-                </div>
-
-                <!-- RIGHT: URL Fetcher -->
-                <div class="add-right">
-                    <h3><i class="fas fa-link"></i> URL Link Fetcher</h3>
-                    <div class="url-fetcher">
-                        <label>Title / Name:</label>
-                        <input type="text" id="fetchTitle" placeholder="Video Title"/>
-                        <label>URL:</label>
-                        <input type="url" id="fetchUrl" placeholder="https://...m3u8 or .mp4 or .pdf"/>
-                        <label>Folder Location:</label>
-                        <select id="fetchFolder"></select>
-                        <button id="fetchAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-
-                    <!-- Preview Player -->
-                    <div class="url-preview">
-                        <h4>Preview</h4>
-                        <video id="previewPlayer" class="preview-video" controls></video>
-                    </div>
-
-                    <!-- Confirm Modal -->
-                    <div id="confirmModal" class="modal hidden">
-                        <div class="modal-content glass">
-                            <h4><i class="fas fa-exclamation-circle"></i> Confirm Add</h4>
-                            <p>File: <strong id="confirmFileName"></strong></p>
-                            <p>Location: <strong id="confirmFolder"></strong></p>
-                            <div class="modal-folder-select">
-                                <label>Change folder:</label>
-                                <select id="confirmFolderSelect"></select>
-                            </div>
-                            <div class="modal-actions">
-                                <button id="confirmCancel" class="btn-ghost">Cancel</button>
-                                <button id="confirmOk" class="btn-primary">Confirm</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <!-- Playlist Below Player -->
+          <div class="home-playlist">
+            <div class="home-playlist-header">
+              <h3><i class="fas fa-folder-play"></i> Recent / Playlist</h3>
+              <div class="view-toggle">
+                <button class="view-btn active" id="viewGrid" title="Grid"><i class="fas fa-th"></i></button>
+                <button class="view-btn" id="viewList" title="List"><i class="fas fa-list-ul"></i></button>
+              </div>
             </div>
-        </section>
-
-        <!-- EXPLORE VIEW -->
-        <section id="view-explore" class="view">
-            <div class="explore-header">
-                <h3><i class="fas fa-folder-open"></i> Explore</h3>
-                <div class="explore-breadcrumb" id="exploreBreadcrumb"></div>
-                <div class="explorer-actions">
-                    <button id="newFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Folder</button>
-                    <button id="newSubFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Subfolder</button>
-                    <button id="upDirBtn" class="btn-secondary"><i class="fas fa-arrow-up"></i> Up</button>
-                    <button id="selectAllBtn" class="btn-secondary"><i class="fas fa-check-square"></i> Select All</button>
-                    <button id="moveSelectedBtn" class="btn-secondary"><i class="fas fa-arrows-alt"></i> Move</button>
-                    <button id="deleteSelectedBtn" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                </div>   
+            <div class="playlist-grid" id="homePlaylist">
+              <div class="empty-state">
+                <i class="fas fa-video"></i>
+                <p>No videos yet. Add content from <b>Explore</b>.</p>
+              </div>
             </div>
-            <div id="exploreGrid" class="explore-grid"></div>
-        </section>
-        <!-- MOVE MODAL -->
-        <div id="moveModal" class="modal hidden">
-            <div class="modal-content glass">
-                <h4><i class="fas fa-arrows-alt"></i> Move To Folder</h4>
-                <p>Selected items will move to:</p>
-                <select id="moveTargetSelect" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);margin:10px 0;"></select>
-                <div class="modal-actions">
-                    <button id="moveCancel" class="btn-ghost">Cancel</button>
-                    <button id="moveOk" class="btn-primary">Move</button>
-                </div>
-            </div>
-        </div>   
-    </main>
-
-    <!-- PDF VIEWER MODAL -->
-    <div id="pdfModal" class="modal pdf-modal hidden">
-        <div class="pdf-modal-content">
-            <div class="pdf-header">
-                <button id="pdfBack" class="icon-btn"><i class="fas fa-arrow-left"></i></button>
-                <span id="pdfTitle" class="pdf-title">PDF Viewer</span>
-                <button id="pdfDownload" class="icon-btn"><i class="fas fa-download"></i></button>
-                <button id="pdfClose" class="icon-btn"><i class="fas fa-times"></i></button>
-            </div>
-            <iframe id="pdfFrame" class="pdf-frame"></iframe>
+          </div>
         </div>
-    </div>
+      </section>
 
-    <!-- TOAST -->
-    <div id="toast" class="toast hidden"></div>
+      <!-- ADD FILE PAGE -->
+      <section id="page-addfile" class="page-section hidden">
+        <h2 class="page-title"><i class="fas fa-plus-circle"></i> Add File / Link</h2>
+        <div class="addfile-layout">
+          <div class="glass-card">
+            <h3><i class="fas fa-link"></i> Add by URL</h3>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" id="addTitle" placeholder="Video / PDF title">
+            </div>
+            <div class="form-group">
+              <label>URL</label>
+              <input type="url" id="addUrl" placeholder="https://... (mp4, m3u8, pdf)">
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select id="addType">
+                <option value="video">Video</option>
+                <option value="pdf">PDF</option>
+              </select>
+            </div>
+            <button class="btn-primary" id="btnAddUrl"><i class="fas fa-plus"></i> Add</button>
+          </div>
 
+          <div class="glass-card">
+            <h3><i class="fas fa-file-import"></i> Import from .txt File</h3>
+            <p class="hint">
+              Supported formats per line:<br>
+              <code>Batch|Subject|Topic|Title|Url</code><br>
+              <code>Subject|Title|Url</code><br>
+              <code>Title|Url</code><br>
+              <code>Url</code> (alone)<br>
+              Or multi-line: Subject / Topic / Title / Url
+            </p>
+            <input type="file" id="txtFileInput" accept=".txt" class="file-input">
+            <div id="txtPreview" class="txt-preview hidden"></div>
+            <button class="btn-primary" id="btnImportTxt" disabled><i class="fas fa-upload"></i> Import</button>
+          </div>
+
+          <!-- Folder Destination Picker -->
+          <div class="glass-card">
+            <h3><i class="fas fa-folder-tree"></i> Destination Folder</h3>
+            <div class="folder-picker" id="folderPicker">
+              <div class="folder-path" id="folderPath">/ (Root)</div>
+              <div class="folder-browse" id="folderBrowse"></div>
+              <button class="btn-secondary" id="btnNewFolder"><i class="fas fa-folder-plus"></i> New Folder</button>
+            </div>
+            <div id="confirmModal" class="modal hidden">
+              <div class="modal-content glass">
+                <h3>Confirm Add</h3>
+                <p>File: <b id="confirmFileName"></b></p>
+                <p>Location: <b id="confirmFolderLoc"></b></p>
+                <div class="modal-actions">
+                  <button class="btn-secondary" id="confirmCancel">Cancel</button>
+                  <button class="btn-primary" id="confirmOk">Confirm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPLORE PAGE -->
+      <section id="page-explore" class="page-section hidden">
+        <div class="explore-toolbar">
+          <div class="breadcrumb" id="exploreBreadcrumb">
+            <span class="bc-item active" data-path="">Root</span>
+          </div>
+          <div class="explore-actions">
+            <button class="btn-secondary" id="btnSelectAll"><i class="fas fa-check-square"></i> Select All</button>
+            <button class="btn-secondary" id="btnMove"><i class="fas fa-arrows-alt"></i> Move</button>
+            <button class="btn-danger" id="btnDelete"><i class="fas fa-trash"></i> Delete</button>
+            <button class="btn-secondary" id="btnGoRoot"><i class="fas fa-home"></i> Go Root</button>
+            <button class="btn-secondary" id="btnNewFolderExplore"><i class="fas fa-folder-plus"></i> New Folder</button>
+          </div>
+        </div>
+        <div class="explore-grid" id="exploreGrid"></div>
+      </section>
+
+      <!-- SETTINGS PAGE -->
+      <section id="page-settings" class="page-section hidden">
+        <h2 class="page-title"><i class="fas fa-cog"></i> Settings</h2>
+        <div class="settings-layout">
+          <div class="glass-card">
+            <h3><i class="fas fa-user"></i> User Details</h3>
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="settingsUsername" value="admin">
+            </div>
+            <div class="form-group">
+              <label>Change Password</label>
+              <input type="password" id="settingsNewPass" placeholder="New password">
+            </div>
+            <button class="btn-primary" id="btnSaveUser"><i class="fas fa-save"></i> Save</button>
+          </div>
+
+          <div class="glass-card">
+            <h3><i class="fas fa-users"></i> Guest Users</h3>
+            <div id="guestList" class="guest-list"></div>
+            <div class="guest-add-row">
+              <input type="text" id="newGuestUser" placeholder="Username">
+              <input type="password" id="newGuestPass" placeholder="Password">
+              <button class="btn-primary" id="btnAddGuest"><i class="fas fa-plus"></i> Add</button>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <h3><i class="fas fa-shield-alt"></i> Folder Permissions (Guest Access)</h3>
+            <p class="hint">Check folders that guest users can access:</p>
+            <div id="permissionList" class="permission-list"></div>
+            <button class="btn-primary" id="btnSavePerms"><i class="fas fa-save"></i> Save Permissions</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 </div>
 
-<script src="app.js"></script>
+<!-- PDF Viewer Modal -->
+<div id="pdfModal" class="modal hidden">
+  <div class="modal-content pdf-modal glass">
+    <div class="pdf-header">
+      <h3 id="pdfTitle">PDF Viewer</h3>
+      <div>
+        <button class="btn-secondary" id="pdfDownload"><i class="fas fa-download"></i> Download</button>
+        <button class="btn-danger" id="pdfClose"><i class="fas fa-times"></i> Close</button>
+      </div>
+    </div>
+    <iframe id="pdfFrame" class="pdf-frame"></iframe>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>   
