@@ -827,14 +827,8 @@ $('confirmOk').addEventListener('click', () => {
 
 function parseTxtLines(lines) {
   const results = [];
+  let curBatch = null, curSubject = null, curTopic = null, curTitle = null;
 
-  // ── State: the "active" hierarchy path ──
-  let curBatch = null;
-  let curSubject = null;
-  let curTopic = null;
-  let curTitle = null;
-
-  // Helper: emit a completed file entry
   function emit(title, url) {
     if (url && /^https?:\/\//i.test(url)) {
       results.push({
@@ -849,96 +843,43 @@ function parseTxtLines(lines) {
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (!line) continue; // skip empty lines
+    if (!line) continue;
 
-    // ── Try pipe-delimited format first ──
+    // Pipe-delimited
     if (line.includes('|')) {
-      const parts = line.split('|').map(p => p.trim()).filter(p => p !== '');
-      if (parts.length >= 5) {
-        // Batch|Subject|Topic|Title|Url
-        emit(parts[3], parts[4]);
-        // Update state in case subsequent lines rely on it
-        curBatch = parts[0] || null;
-        curSubject = parts[1] || null;
-        curTopic = parts[2] || null;
-      } else if (parts.length === 4) {
-        // Subject|Topic|Title|Url
-        curSubject = parts[0] || null;
-        curTopic = parts[1] || null;
-        emit(parts[2], parts[3]);
-      } else if (parts.length === 3) {
-        // Subject|Title|Url
-        curSubject = parts[0] || null;
-        emit(parts[1], parts[2]);
-      } else if (parts.length === 2) {
-        // Title|Url
-        emit(parts[0], parts[1]);
-      }
+      const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+      if (parts.length >= 5) { curBatch=parts[0]; curSubject=parts[1]; curTopic=parts[2]; emit(parts[3],parts[4]); }
+      else if (parts.length === 4) { curSubject=parts[0]; curTopic=parts[1]; emit(parts[2],parts[3]); }
+      else if (parts.length === 3) { curSubject=parts[0]; emit(parts[1],parts[2]); }
+      else if (parts.length === 2) { emit(parts[0],parts[1]); }
       continue;
     }
 
-    // ── Key:Value format (the main hierarchical format) ──
-    const colonIdx = line.indexOf(':');
-    if (colonIdx > 0) {
-      const key = line.substring(0, colonIdx).trim().toLowerCase();
-      const val = line.substring(colonIdx + 1).trim();
-
+    // Key:Value
+    const ci = line.indexOf(':');
+    if (ci > 0) {
+      const key = line.substring(0, ci).trim().toLowerCase();
+      const val = line.substring(ci + 1).trim();
       switch (key) {
-        case 'batch':
-          // New batch → reset subject & topic
-          curBatch = val || null;
-          curSubject = null;
-          curTopic = null;
-          curTitle = null;
-          break;
-
-        case 'subject':
-          // New subject → reset topic
-          curSubject = val || null;
-          curTopic = null;
-          curTitle = null;
-          break;
-
-        case 'topic':
-          // New topic → just switch
-          curTopic = val || null;
-          curTitle = null;
-          break;
-
-        case 'title':
-          // Store title, wait for Url
-          curTitle = val || null;
-          break;
-
-        case 'url':
-          // Emit the file entry with current context
-          emit(curTitle, val);
-          curTitle = null; // reset for next Title
-          break;
+        case 'batch':   curBatch = val; curSubject = null; curTopic = null; curTitle = null; break;
+        case 'subject': curSubject = val; curTopic = null; curTitle = null; break;
+        case 'topic':   curTopic = val; curTitle = null; break;
+        case 'title':   curTitle = val; break;
+        case 'url':     emit(curTitle, val); curTitle = null; break;
       }
       continue;
     }
 
-    // ── Bare URL (no key prefix) ──
-    if (/^https?:\/\//i.test(line)) {
-      emit(curTitle, line);
-      curTitle = null;
-      continue;
-    }
+    // Bare URL
+    if (/^https?:\/\//i.test(line)) { emit(curTitle, line); curTitle = null; continue; }
 
-    // ── Fallback: treat as a title if we don't have one yet ──
-    if (!curTitle) {
-      curTitle = line;
-    }
-  }
-
-  // Flush any dangling title+url at end of file
-  if (curTitle && curTitle.startsWith && /^https?:\/\//i.test(curTitle)) {
-    // edge case: title IS a url
-    emit(null, curTitle);
+    // Fallback: treat as title
+    if (!curTitle) curTitle = line;
   }
   return results;
 }   
+
+
 // ─── SETTINGS ───
 function initSettings() {
   // Save user details
