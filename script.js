@@ -818,51 +818,253 @@ $('confirmOk').addEventListener('click', () => {
   alert('Added successfully!');
 });
 
-// ─── TXT PARSER ───
+// ─── HIERARCHICAL TXT PARSER (Stateful) ───
+// Maintains current Batch > Subject > Topic context.
+// A new Batch: resets Subject & Topic.
+// A new Subject: resets Topic.
+// A new Topic: just switches topic (keeps Batch & Subject).
+// Title: + Url: = one file entry in the current Topic folder.
+
 function parseTxtLines(lines) {
   const results = [];
-  let current = {};
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) { if (current.title && current.url) results.push(current); current = {}; continue; }
-    // Try pipe-delimited
-    if (trimmed.includes('|')) {
-      const parts = trimmed.split('|').map(p => p.trim());
+
+  // ── State: the "active" hierarchy path ──
+  let curBatch = null;
+  let curSubject = null;
+  let curTopic = null;
+  let curTitle = null;
+
+  // Helper: emit a completed file entry
+  function emit(title, url) {
+    if (url && /^https?:\/\//i.test(url)) {
+      results.push({
+        batch: curBatch,
+        subject: curSubject,
+        topic: curTopic,
+        title: title || url.split('/').pop() || 'Untitled',
+        url
+      });
+    }
+  }
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue; // skip empty lines
+
+    // ── Try pipe-delimited format first ──
+    if (line.includes('|')) {
+      const parts = line.split('|').map(p => p.trim()).filter(p => p !== '');
       if (parts.length >= 5) {
-        results.push({ batch: parts[0], subject: parts[1], topic: parts[2], title: parts[3], url: parts[4] });
+        // Batch|Subject|Topic|Title|Url
+        emit(parts[3], parts[4]);
+        // Update state in case subsequent lines rely on it
+        curBatch = parts[0] || null;
+        curSubject = parts[1] || null;
+        curTopic = parts[2] || null;
       } else if (parts.length === 4) {
-        results.push({ batch: null, subject: parts[0], topic: parts[1], title: parts[2], url: parts[3] });
+        // Subject|Topic|Title|Url
+        curSubject = parts[0] || null;
+        curTopic = parts[1] || null;
+        emit(parts[2], parts[3]);
       } else if (parts.length === 3) {
-        results.push({ batch: null, subject: parts[0], topic: null, title: parts[1], url: parts[2] });
+        // Subject|Title|Url
+        curSubject = parts[0] || null;
+        emit(parts[1], parts[2]);
       } else if (parts.length === 2) {
-        results.push({ batch: null, subject: null, topic: null, title: parts[0], url: parts[1] });
-      } else {
-        results.push({ batch: null, subject: null, topic: null, title: trimmed, url: trimmed });
+        // Title|Url
+        emit(parts[0], parts[1]);
       }
       continue;
     }
-    // Detect URL
-    if (/^https?:\/\//i.test(trimmed)) {
-      if (current.title) { current.url = trimmed; results.push(current); current = {}; }
-      else results.push({ title: trimmed, url: trimmed });
+
+    // ── Key:Value format (the main hierarchical format) ──
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > 0) {
+      const key = line.substring(0, colonIdx).trim().toLowerCase();
+      const val = line.substring(colonIdx + 1).trim();
+
+      switch (key) {
+        case 'batch':
+          // New batch → reset subject & topic
+          curBatch = val || null;
+          curSubject = null;
+          curTopic = null;
+          curTitle = null;
+          break;
+
+        case 'subject':
+          // New subject → reset topic
+          curSubject = val || null;
+          curTopic = null;
+          curTitle = null;
+          break;
+
+        case 'topic':
+          // New topic → just switch
+          curTopic = val || null;
+          curTitle = null;
+          break;
+
+        case 'title':
+          // Store title, wait for Url
+          curTitle = val || null;
+          break;
+
+        case 'url':
+          // Emit the file entry with current context
+          emit(curTitle, val);
+          curTitle = null; // reset for next Title
+          break;
+      }
       continue;
     }
-    // Multi-line format: Subject / Topic / Title / Url
-    const lower = trimmed.toLowerCase();
-    if (lower.startsWith('subject:')) { current.subject = trimmed.replace('subject:','').trim(); }
-    else if (lower.startsWith('topic:')) { current.topic = trimmed.replace('topic:','').trim(); }
-    else if (lower.startsWith('title:')) { current.title = trimmed.replace('title:','').trim(); }
-    else if (lower.startsWith('batch:')) { current.batch = trimmed.replace('batch:','').trim(); }
-    else if (lower.startsWith('url:')) { current.url = trimmed.replace('url:','').trim(); if (current.title) results.push(current); current = {}; }
-    else {
-      // Guess: if we have 3 non-URL lines before a URL, assume Subject/Topic/Title
-      if (!current.subject) current.subject = trimmed;
-      else if (!current.topic) current.topic = trimmed;
-      else if (!current.title) current.title = trimmed;
+
+    // ── Bare URL (no key prefix) ──
+    if (/^https?:\/\//i.test(line)) {
+      emit(curTitle, line);
+      curTitle = null;
+      continue;
+    }
+
+    // ── Fallback: treat as a title if we don't have one yet ──
+    if (!curTitle) {
+      curTitle = line;
     }
   }
-  if (current.title && current.url) results.push(current);
+
+  // Flush any dangling title+url at end of file
+  if (curTitle && curTitle.startsWith && /^https?:\/\//i.test(curTitle)) {
+    // edge case: title IS a url
+    emit(null, curTitle);
+  }
   return results;
+}   
+// ─── SETTINGS ───
+function initSettings() {
+  // Save user details
+  $('btnSaveUser').addEventListener('click', () => {
+    const newPass = $('settingsNewPass').value;
+    if (newPass) {
+      DB.users[currentUser].pass = newPass;
+      saveDB();
+      $('settingsNewPass').value = '';
+      alert('Password updated.');
+    } else {
+      alert('No new password entered.');
+    }
+  });
+
+  // Add guest
+  $('btnAddGuest').addEventListener('click', () => {
+    const u = $('newGuestUser').value.trim();
+    const p = $('newGuestPass').value;
+    if (!u || !p) return alert('Fill both fields.');
+    if (DB.users[u]) return alert('Username already exists.');
+    DB.users[u] = { pass: p, role: 'guest' };
+    saveDB();
+    $('newGuestUser').value = '';
+    $('newGuestPass').value = '';
+    renderSettings();
+  });
+
+  // Save permissions
+  $('btnSavePerms').addEventListener('click', () => {
+    DB.permissions = {};
+    document.querySelectorAll('.perm-check').forEach(cb => {
+      if (cb.checked) DB.permissions[cb.dataset.folderId] = true;
+    });
+    saveDB();
+    alert('Permissions saved.');
+  });
 }
+
+function renderSettings() {
+  // ── ALL USERS LIST (admin + guests) ──
+  const guestList = $('guestList');
+  guestList.innerHTML = '';
+  Object.entries(DB.users).forEach(([name, data]) => {
+    const row = document.createElement('div');
+    row.className = 'guest-row';
+    const roleBadge = data.role === 'admin'
+      ? '<span class="badge-admin">Admin</span>'
+      : '<span class="badge-guest">Guest</span>';
+    row.innerHTML = `
+      <span class="g-name">${name} ${roleBadge}</span>
+      ${data.role === 'guest' ? `
+        <button class="icon-btn" title="Change Pass" onclick="changeGuestPass('${name}')"><i class="fas fa-key"></i></button>
+        <button class="icon-btn" title="Delete" onclick="deleteGuest('${name}')"><i class="fas fa-trash"></i></button>
+      ` : '<span class="hint">default</span>'}`;
+    guestList.appendChild(row);
+  });
+
+  // ── ALL FOLDERS (nested, with full path) ──
+  const permList = $('permissionList');
+  permList.innerHTML = '';
+
+  // Build full folder tree with paths
+  const allFolders = Object.entries(DB.folders);
+  if (allFolders.length === 0) {
+    permList.innerHTML = '<p class="hint">No folders yet.</p>';
+    return;
+  }
+
+  // Sort: top-level first, then nested
+  const sorted = allFolders.sort((a, b) => {
+    const aParent = a[1].parentId ? 1 : 0;
+    const bParent = b[1].parentId ? 1 : 0;
+    return aParent - bParent || a[1].name.localeCompare(b[1].name);
+  });
+
+  sorted.forEach(([id, f]) => {
+    const path = getFolderPath(id);
+    const row = document.createElement('div');
+    row.className = 'perm-row';
+    row.innerHTML = `
+      <input type="checkbox" class="perm-check" data-folder-id="${id}" ${DB.permissions[id] ? 'checked' : ''}>
+      <span class="perm-path">${path}</span>`;
+    permList.appendChild(row);
+  });
+}
+
+// Helper: get full path like "/Batch1/SubjectA/Topic1"
+function getFolderPath(folderId) {
+  const parts = [];
+  let current = DB.folders[folderId];
+  while (current) {
+    parts.unshift(current.name);
+    current = current.parentId ? DB.folders[current.parentId] : null;
+  }
+  return '/' + parts.join('/');
+}   
+
+  // Permission list
+  const permList = $('permissionList');
+  permList.innerHTML = '';
+  const allFolders = Object.entries(DB.folders).filter(([id, f]) => !f.parentId);
+  if (allFolders.length === 0) {
+    permList.innerHTML = '<p class="hint">No folders yet.</p>';
+    return;
+  }
+  allFolders.forEach(([id, f]) => {
+    const row = document.createElement('div');
+    row.className = 'perm-row';
+    row.innerHTML = `
+      <input type="checkbox" class="perm-check" data-folder-id="${id}" ${DB.permissions[id] ? 'checked' : ''}>
+      <span>${f.name}</span>`;
+    permList.appendChild(row);
+  });
+}
+
+window.changeGuestPass = function(name) {
+  const p = prompt(`New password for "${name}":`);
+  if (p) { DB.users[name].pass = p; saveDB(); }
+};
+
+window.deleteGuest = function(name) {
+  if (!confirm(`Delete guest "${name}"?`)) return;
+  delete DB.users[name];
+  saveDB();
+  renderSettings();
+};   
 
 //   
