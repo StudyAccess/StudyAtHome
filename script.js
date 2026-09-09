@@ -643,7 +643,7 @@ function renderExplore() {
       <div class="item-name">${item.name || item.title}</div>
       <div class="item-count">${isFolder ? count + ' items' : (item.type === 'pdf' ? 'PDF' : 'Video')}</div>
       <div class="item-actions">
-        ${isFolder ? `<button class="icon-btn" title="Delete" onclick="deleteFolder('${item.id}')"><i class="fas fa-trash"></i></button>` : `<button class="icon-btn" title="Remove" onclick="removeItem('${item.id}')"><i class="fas fa-times"></i></button>`}
+        ${isFolder ? `<button class="icon-btn" title="Delete" onclick="deleteFolder('${item.id}')"><i class="fas fa-trash"></i></button>` : `<button class="icon-btn" title="Remove" onclick="removeItem('${item.id}')"><i class="fas fa-trash"></i></button>`}
       </div>`;
     div.addEventListener('click', e => {
       if (e.target.closest('.item-actions')) return;
@@ -877,8 +877,7 @@ function parseTxtLines(lines) {
     if (!curTitle) curTitle = line;
   }
   return results;
-}   
-
+}
 
 // ─── SETTINGS ───
 function initSettings() {
@@ -976,24 +975,6 @@ function getFolderPath(folderId) {
     current = current.parentId ? DB.folders[current.parentId] : null;
   }
   return '/' + parts.join('/');
-}   
-
-  // Permission list
-  const permList = $('permissionList');
-  permList.innerHTML = '';
-  const allFolders = Object.entries(DB.folders).filter(([id, f]) => !f.parentId);
-  if (allFolders.length === 0) {
-    permList.innerHTML = '<p class="hint">No folders yet.</p>';
-    return;
-  }
-  allFolders.forEach(([id, f]) => {
-    const row = document.createElement('div');
-    row.className = 'perm-row';
-    row.innerHTML = `
-      <input type="checkbox" class="perm-check" data-folder-id="${id}" ${DB.permissions[id] ? 'checked' : ''}>
-      <span>${f.name}</span>`;
-    permList.appendChild(row);
-  });
 }
 
 window.changeGuestPass = function(name) {
@@ -1006,6 +987,19 @@ window.deleteGuest = function(name) {
   delete DB.users[name];
   saveDB();
   renderSettings();
-};   
+};
 
-//   
+// PDF viewer function
+window.openPdf = function(url, title) {
+  $('pdfTitle').textContent = title;
+  $('pdfFrame').src = url;
+  $('pdfModal').classList.remove('hidden');
+};
+
+$('pdfClose').addEventListener('click', () => $('pdfModal').classList.add('hidden'));
+$('pdfDownload').addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.href = $('pdfFrame').src;
+  link.download = ($('pdfTitle').textContent || 'document') + '.pdf';
+  link.click();
+});
