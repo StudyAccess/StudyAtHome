@@ -1,24 +1,13 @@
 /* ============================================================
-   STUDY PREMIUM LEARNING - Main Application
+   STUDY PREMIUM LEARNING - app.js (COMPLETE)
    ============================================================ */
 
 // ===== CONFIGURATION =====
 const CONFIG = {
-    // ⚠️ PASTE YOUR CUSTOM CORS PROXY URL HERE
-    // Example: "http://localhost:3000/proxy?url="
-    // Or use a public one for testing:
     CORS_PROXY: "https://corsproxy.io/?url=",
-
-    // ⚠️ PASTE YOUR CUSTOM HLS URL HERE (for testing)
     DEFAULT_HLS_URL: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-
-    // ⚠️ YOUR VIDEO PLAYER ID
     PLAYER_ID: "videoPlayer",
-
-    // Storage key
     STORAGE_KEY: "study_premium_data",
-
-    // Admin credentials
     ADMIN_USER: "admin",
     ADMIN_PASS: "admin123",
 };
@@ -30,16 +19,14 @@ let state = {
     theme: localStorage.getItem('spl_theme') || 'dark',
     sidebarCollapsed: false,
     currentView: 'home',
-    // File system: { folders: { id: { name, parentId, files: [] } }, files: [...] }
     fileSystem: null,
     currentFolderId: null,
     currentPlaylist: [],
     currentVideoIndex: -1,
-    // Player state
     playerState: {
         locked: false,
-        loop: 'none', // none, same, playlist
-        aspect: 'fit', // fit, stretch, crop
+        loop: 'none',
+        aspect: 'fit',
         uiScale: 1.0,
         speed: 1.0,
         quality: 'auto',
@@ -80,10 +67,14 @@ function saveState() {
 function loadState() {
     const raw = localStorage.getItem(CONFIG.STORAGE_KEY);
     if (raw) {
-        const data = JSON.parse(raw);
-        state.fileSystem = data.fileSystem || createDefaultFS();
-        state.theme = data.theme || 'dark';
-        state.playerState.defaultVolume = data.defaultVolume || 0.8;
+        try {
+            const data = JSON.parse(raw);
+            state.fileSystem = data.fileSystem || createDefaultFS();
+            state.theme = data.theme || 'dark';
+            state.playerState.defaultVolume = data.defaultVolume || 0.8;
+        } catch(e) {
+            state.fileSystem = createDefaultFS();
+        }
     } else {
         state.fileSystem = createDefaultFS();
     }
@@ -92,14 +83,27 @@ function loadState() {
 function createDefaultFS() {
     return {
         folders: {
-            'root': { id: 'root', name: 'Platform', parentId: null, files: [] },
+            'root': { id: 'root', name: 'Platform', parentId: null, files: [] }
         },
-        nextId: 1,
+        nextId: 1
     };
 }
 
 function genId() {
     return 'f' + (state.fileSystem.nextId++);
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 2500);
 }
 
 // ===== LOGIN =====
@@ -134,7 +138,7 @@ function initLogin() {
         }
         overlay.classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
-        showToast(`Welcome, ${state.user}!`);
+        showToast('Welcome, ' + state.user + '!');
     });
 
     document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -174,14 +178,14 @@ function initSidebar() {
 function switchView(view) {
     state.currentView = view;
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + view).classList.add('active');
+    const el = document.getElementById('view-' + view);
+    if (el) el.classList.add('active');
     if (view === 'explore') renderExplore();
     if (view === 'add') renderExplorer();
 }
 
 // ===== VIEWS =====
 function initViews() {
-    // Layout toggle for playlist below
     document.getElementById('layoutGrid').addEventListener('click', () => {
         document.getElementById('playlistBelow').className = 'playlist-below-items grid-layout';
         document.getElementById('layoutGrid').classList.add('active');
@@ -257,7 +261,6 @@ function initPlayer() {
     const overlay = document.getElementById('playerOverlay');
     let hideTimer = null;
 
-    // Show/hide overlay
     function showOverlay() {
         overlay.classList.add('visible');
         clearTimeout(hideTimer);
@@ -270,15 +273,15 @@ function initPlayer() {
 
     overlay.addEventListener('mousemove', showOverlay);
     overlay.addEventListener('touchstart', showOverlay);
+
     video.addEventListener('click', () => {
         if (state.playerState.locked) return;
-        video.paused ? video.play() : video.pause();
+        if (video.paused) video.play().catch(()=>{}); else video.pause();
         showOverlay();
     });
 
     // Double-tap gestures
     let lastTap = 0;
-    let lastTapX = 0;
     overlay.addEventListener('touchend', (e) => {
         const now = Date.now();
         const x = e.changedTouches[0].clientX;
@@ -286,28 +289,25 @@ function initPlayer() {
         const relX = (x - rect.left) / rect.width;
 
         if (now - lastTap < 300) {
-            // Double tap
-            if (relX < 0.3) {
-                video.currentTime = Math.max(0, video.currentTime - 30);
-                showToast('⏪ -30s');
-            } else if (relX < 0.5) {
-                video.currentTime = Math.max(0, video.currentTime - 10);
-                showToast('⏪ -10s');
-            } else if (relX > 0.7) {
-                video.currentTime = Math.min(video.duration || 0, video.currentTime + 30);
-                showToast('⏩ +30s');
-            } else if (relX > 0.5) {
-                video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-                showToast('⏩ +10s');
-            }
+            if (relX < 0.3) { video.currentTime = Math.max(0, video.currentTime - 30); showToast('-30s'); }
+            else if (relX < 0.5) { video.currentTime = Math.max(0, video.currentTime - 10); showToast('-10s'); }
+            else if (relX > 0.7) { video.currentTime = Math.min(video.duration||0, video.currentTime + 30); showToast('+30s'); }
+            else if (relX > 0.5) { video.currentTime = Math.min(video.duration||0, video.currentTime + 10); showToast('+10s'); }
             lastTap = 0;
-        } else {
-            lastTap = now;
-            lastTapX = x;
-        }
+        } else { lastTap = now; }
     });
 
-    // Swipe gestures (brightness & volume)
+    // Mouse double-click
+    overlay.addEventListener('dblclick', (e) => {
+        const rect = overlay.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        if (relX < 0.3) video.currentTime = Math.max(0, video.currentTime - 30);
+        else if (relX < 0.5) video.currentTime = Math.max(0, video.currentTime - 10);
+        else if (relX > 0.7) video.currentTime = Math.min(video.duration||0, video.currentTime + 30);
+        else if (relX > 0.5) video.currentTime = Math.min(video.duration||0, video.currentTime + 10);
+    });
+
+    // Swipe: brightness (left) / volume (right)
     let swipeStartY = null;
     let swipeTarget = null;
 
@@ -325,23 +325,19 @@ function initPlayer() {
         if (swipeStartY === null) return;
         e.preventDefault();
         const dy = swipeStartY - e.touches[0].clientY;
-        const delta = dy / 200; // sensitivity
-
+        const delta = dy / 200;
         if (swipeTarget === 'brightness') {
             state.playerState.brightness = Math.max(-1, Math.min(1, state.playerState.brightness + delta * 0.05));
             applyBrightness();
-        } else if (swipeTarget === 'volume') {
+        } else {
             video.volume = Math.max(0, Math.min(1, video.volume + delta * 0.05));
             updateVolumeUI();
         }
     });
 
-    overlay.addEventListener('touchend', () => {
-        swipeStartY = null;
-        swipeTarget = null;
-    });
+    overlay.addEventListener('touchend', () => { swipeStartY = null; swipeTarget = null; });
 
-    // Mouse drag for volume/brightness
+    // Mouse drag
     let mouseSwipeStartY = null;
     let mouseSwipeTarget = null;
 
@@ -353,27 +349,21 @@ function initPlayer() {
             mouseSwipeTarget = relX < 0.5 ? 'brightness' : 'volume';
         }
     });
-
     document.addEventListener('mousemove', (e) => {
         if (mouseSwipeStartY === null) return;
         const dy = mouseSwipeStartY - e.clientY;
         const delta = dy / 200;
-
         if (mouseSwipeTarget === 'brightness') {
             state.playerState.brightness = Math.max(-1, Math.min(1, state.playerState.brightness + delta * 0.02));
             applyBrightness();
-        } else if (mouseSwipeTarget === 'volume') {
+        } else {
             video.volume = Math.max(0, Math.min(1, video.volume + delta * 0.02));
             updateVolumeUI();
         }
     });
+    document.addEventListener('mouseup', () => { mouseSwipeStartY = null; mouseSwipeTarget = null; });
 
-    document.addEventListener('mouseup', () => {
-        mouseSwipeStartY = null;
-        mouseSwipeTarget = null;
-    });
-
-    // Lock controls
+    // Lock
     document.getElementById('ctrlLock').addEventListener('click', () => {
         state.playerState.locked = !state.playerState.locked;
         overlay.classList.toggle('locked', state.playerState.locked);
@@ -381,29 +371,27 @@ function initPlayer() {
             state.playerState.locked ? 'fas fa-lock' : 'fas fa-lock-open';
     });
 
-    // Loop toggle
+    // Loop
     document.getElementById('ctrlLoop').addEventListener('click', () => {
-        const modes = ['none', 'same', 'playlist'];
-        const icons = { none: 'fas fa-redo', same: 'fas fa-rotate-right', playlist: 'fas fa-list-ol' };
-        const labels = { none: 'Loop: Off', same: 'Loop: Same', playlist: 'Loop: Playlist' };
+        const modes = ['none','same','playlist'];
+        const icons = { none:'fas fa-redo', same:'fas fa-rotate-right', playlist:'fas fa-list-ol' };
         const idx = modes.indexOf(state.playerState.loop);
-        state.playerState.loop = modes[(idx + 1) % modes.length];
+        state.playerState.loop = modes[(idx+1)%modes.length];
         document.getElementById('ctrlLoop').querySelector('i').className = icons[state.playerState.loop];
-        showToast(labels[state.playerState.loop]);
+        showToast('Loop: ' + state.playerState.loop);
     });
 
-    // Aspect ratio
+    // Aspect
     document.getElementById('ctrlAspect').addEventListener('click', () => {
-        const modes = ['fit', 'stretch', 'crop'];
-        const icons = { fit: 'fas fa-expand', stretch: 'fas fa-arrows-alt-h', crop: 'fas fa-crop' };
+        const modes = ['fit','stretch','crop'];
+        const icons = { fit:'fas fa-expand', stretch:'fas fa-arrows-alt-h', crop:'fas fa-crop' };
         const idx = modes.indexOf(state.playerState.aspect);
-        state.playerState.aspect = modes[(idx + 1) % modes.length];
+        state.playerState.aspect = modes[(idx+1)%modes.length];
         video.style.objectFit = state.playerState.aspect === 'fit' ? 'contain' : state.playerState.aspect === 'stretch' ? 'fill' : 'cover';
         document.getElementById('ctrlAspect').querySelector('i').className = icons[state.playerState.aspect];
-        showToast('Aspect: ' + state.playerState.aspect);
     });
 
-    // UI Scaler
+    // UI Scale
     document.getElementById('ctrlScaleUp').addEventListener('click', () => {
         state.playerState.uiScale = Math.min(2.0, state.playerState.uiScale + 0.5);
         applyUIScale();
@@ -413,14 +401,12 @@ function initPlayer() {
         applyUIScale();
     });
 
-    // Reverse
+    // Reverse / Forward buttons
     document.getElementById('ctrlReverse').addEventListener('click', () => {
         video.currentTime = Math.max(0, video.currentTime - 10);
     });
-
-    // Forward
     document.getElementById('ctrlForward').addEventListener('click', () => {
-        video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+        video.currentTime = Math.min(video.duration||0, video.currentTime + 10);
     });
 
     // Brightness button
@@ -431,14 +417,12 @@ function initPlayer() {
 
     // Volume button
     document.getElementById('ctrlVolume').addEventListener('click', () => {
-        const volOverlay = document.getElementById('volumeOverlay');
-        volOverlay.style.display = volOverlay.style.display === 'block' ? 'none' : 'block';
+        const vo = document.getElementById('volumeOverlay');
+        vo.style.display = vo.style.display === 'block' ? 'none' : 'block';
     });
 
     // Play/Pause
-    function togglePlay() {
-        video.paused ? video.play() : video.pause();
-    }
+    function togglePlay() { if (video.paused) video.play().catch(()=>{}); else video.pause(); }
     document.getElementById('ctrlPlayPause').addEventListener('click', togglePlay);
     document.getElementById('ctrlPlayPause2').addEventListener('click', togglePlay);
     video.addEventListener('play', () => {
@@ -450,17 +434,17 @@ function initPlayer() {
         document.getElementById('ctrlPlayPause2').querySelector('i').className = 'fas fa-play';
     });
 
-    // Previous / Next
+    // Prev / Next
     document.getElementById('ctrlPrev').addEventListener('click', playPrev);
     document.getElementById('ctrlNext').addEventListener('click', playNext);
 
     // Speed
     document.getElementById('ctrlSpeedDown').addEventListener('click', () => {
-        video.playbackRate = Math.max(0.1, Math.round((video.playbackRate - 0.05) * 100) / 100);
+        video.playbackRate = Math.max(0.1, Math.round((video.playbackRate - 0.05)*100)/100);
         updateSpeedUI();
     });
     document.getElementById('ctrlSpeedUp').addEventListener('click', () => {
-        video.playbackRate = Math.min(4.0, Math.round((video.playbackRate + 0.1) * 100) / 100);
+        video.playbackRate = Math.min(4.0, Math.round((video.playbackRate + 0.1)*100)/100);
         updateSpeedUI();
     });
 
@@ -495,7 +479,6 @@ function initPlayer() {
                     if (target) state.hlsInstance.currentLevel = levels.indexOf(target);
                 }
             }
-            updateQualityUI();
             qualityMenu.classList.add('hidden');
         });
     });
@@ -511,22 +494,16 @@ function initPlayer() {
     // PiP
     document.getElementById('ctrlPip').addEventListener('click', async () => {
         try {
-            if (document.pictureInPictureElement) {
-                await document.exitPictureInPicture();
-            } else {
-                await video.requestPictureInPicture();
-            }
-        } catch (e) { showToast('PiP not supported'); }
+            if (document.pictureInPictureElement) await document.exitPictureInPicture();
+            else await video.requestPictureInPicture();
+        } catch(e) { showToast('PiP not supported'); }
     });
 
     // Fullscreen
     document.getElementById('ctrlFullscreen').addEventListener('click', () => {
-        const container = document.getElementById('videoContainer');
-        if (!document.fullscreenElement) {
-            container.requestFullscreen().catch(() => {});
-        } else {
-            document.exitFullscreen();
-        }
+        const c = document.getElementById('videoContainer');
+        if (!document.fullscreenElement) c.requestFullscreen().catch(()=>{});
+        else document.exitFullscreen();
     });
 
     // Progress bar
@@ -565,12 +542,9 @@ function initPlayer() {
     // Ended
     video.addEventListener('ended', () => {
         if (state.playerState.loop === 'same') {
-            video.currentTime = 0;
-            video.play();
+            video.currentTime = 0; video.play().catch(()=>{});
         } else if (state.playerState.loop === 'playlist') {
-            if (state.currentVideoIndex < state.currentPlaylist.length - 1) {
-                playNext();
-            }
+            if (state.currentVideoIndex < state.currentPlaylist.length - 1) playNext();
         } else {
             playNext();
         }
@@ -578,123 +552,100 @@ function initPlayer() {
 }
 
 function applyBrightness() {
-    const overlay = document.getElementById('brightnessOverlay');
+    const o = document.getElementById('brightnessOverlay');
     const b = state.playerState.brightness;
-    if (b > 0) overlay.style.background = `rgba(255,255,255,${b * 0.5})`;
-    else if (b < 0) overlay.style.background = `rgba(0,0,0,${-b * 0.5})`;
-    else overlay.style.background = 'transparent';
+    if (b > 0) o.style.background = 'rgba(255,255,255,' + (b*0.5) + ')';
+    else if (b < 0) o.style.background = 'rgba(0,0,0,' + (-b*0.5) + ')';
+    else o.style.background = 'transparent';
 }
 
 function applyUIScale() {
     const s = state.playerState.uiScale;
-    document.getElementById('ctrlScaleVal').textContent = Math.round(s * 100) + '%';
-    document.getElementById('playerOverlay').style.transform = `scale(${s})`;
+    document.getElementById('ctrlScaleVal').textContent = Math.round(s*100) + '%';
+    document.getElementById('playerOverlay').style.transform = 'scale(' + s + ')';
     document.getElementById('playerOverlay').style.transformOrigin = 'center center';
 }
 
 function updateSpeedUI() {
-    document.getElementById('ctrlSpeedVal').textContent = video.playbackRate.toFixed(1) + 'x';
-}
-
-function updateQualityUI() {
-    document.getElementById('ctrlQuality').title = 'Quality: ' + state.playerState.quality;
+    const v = document.getElementById(CONFIG.PLAYER_ID);
+    document.getElementById('ctrlSpeedVal').textContent = v.playbackRate.toFixed(1) + 'x';
 }
 
 function updateVolumeUI() {
     const v = document.getElementById(CONFIG.PLAYER_ID).volume;
-    document.getElementById('volumeFill').style.height = (v * 100) + '%';
+    document.getElementById('volumeFill').style.height = (v*100) + '%';
     const icon = document.getElementById('ctrlVolume').querySelector('i');
     icon.className = v === 0 ? 'fas fa-volume-mute' : v < 0.5 ? 'fas fa-volume-down' : 'fas fa-volume-up';
 }
 
 function fmtTime(s) {
     if (!s || isNaN(s)) return '0:00';
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return m + ':' + String(sec).padStart(2, '0');
+    const m = Math.floor(s/60);
+    const sec = Math.floor(s%60);
+    return m + ':' + String(sec).padStart(2,'0');
 }
 
 // ===== HLS.JS INTEGRATION =====
 function loadVideo(url, title) {
     const video = document.getElementById(CONFIG.PLAYER_ID);
-    const hls = state.hlsInstance;
-
-    // Destroy previous HLS instance
-    if (hls) { hls.destroy(); state.hlsInstance = null; }
+    if (state.hlsInstance) { state.hlsInstance.destroy(); state.hlsInstance = null; }
 
     document.getElementById('ctrlTitle').textContent = title || url;
 
     const isHLS = /\.m3u8(\?|$)/i.test(url) || /master|playlist.*m3u8/i.test(url);
     const isPDF = /\.pdf(\?|$)/i.test(url);
 
-    if (isPDF) {
-        openPDF(url, title);
-        return;
-    }
+    if (isPDF) { openPDF(url, title); return; }
 
     if (isHLS && Hls.isSupported()) {
-        const proxyUrl = CONFIG.CORS_PROXY + encodeURIComponent(url);
-        const hlsInstance = new Hls({
-            // CORS configuration
-            xhrSetup: (xhr, url) => {
-                xhr.withCredentials = false;
-            },
-            // Try direct first, fall back to proxy
+        const hls = new Hls({
+            xhrSetup: (xhr, u) => { xhr.withCredentials = false; },
             manifestLoadingMaxRetry: 3,
             levelLoadingMaxRetry: 3,
             fragLoadingMaxRetry: 3,
             maxBufferLength: 30,
-            liveSyncDurationCount: 3,
             enableWorker: true,
-            lowLatencyMode: false,
         });
 
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(video);
+        hls.loadSource(url);
+        hls.attachMedia(video);
 
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, (e, data) => {
-            video.play().catch(() => {});
-            console.log('[HLS] Manifest parsed. Levels:', data.levels.map(l => l.height + 'p'));
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            video.play().catch(()=>{});
         });
 
-        hlsInstance.on(Hls.Events.ERROR, (e, data) => {
+        hls.on(Hls.Events.ERROR, (e, data) => {
             if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        console.warn('[HLS] Network error, trying proxy...');
-                        hlsInstance.destroy();
-                        // Retry with proxy
-                        const proxyUrl2 = CONFIG.CORS_PROXY + encodeURIComponent(url);
-                        const hls2 = new Hls();
-                        hls2.loadSource(proxyUrl2);
-                        hls2.attachMedia(video);
-                        hls2.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-                        hls2.on(Hls.Events.ERROR, (e2, d2) => {
-                            if (d2.fatal) showToast('Stream error: ' + d2.details);
-                        });
-                        state.hlsInstance = hls2;
-                        break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        hlsInstance.recoverMediaError();
-                        break;
-                    default:
-                        showToast('Playback error: ' + data.details);
-                        hlsInstance.destroy();
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    // Try CORS proxy fallback
+                    console.warn('[HLS] Direct failed, trying proxy...');
+                    hls.destroy();
+                    const proxyUrl = CONFIG.CORS_PROXY + encodeURIComponent(url);
+                    const hls2 = new Hls();
+                    hls2.loadSource(proxyUrl);
+                    hls2.attachMedia(video);
+                    hls2.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
+                    hls2.on(Hls.Events.ERROR, (e2, d2) => {
+                        if (d2.fatal) showToast('Stream error: ' + d2.details);
+                    });
+                    state.hlsInstance = hls2;
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                    hls.recoverMediaError();
+                } else {
+                    showToast('Playback error: ' + data.details);
+                    hls.destroy();
                 }
             }
         });
 
-        state.hlsInstance = hlsInstance;
+        state.hlsInstance = hls;
 
     } else if (isHLS && video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native HLS (Safari)
         video.src = url;
-        video.play().catch(() => {});
-
+        video.play().catch(()=>{});
     } else {
-        // MP4 or other
         video.src = url;
-        video.play().catch(() => {});
+        video.play().catch(()=>{});
     }
 }
 
@@ -723,27 +674,22 @@ function playVideoAt(idx) {
 }
 
 function renderPlaylist() {
-    // Playlist below player
     const container = document.getElementById('playlistBelow');
     container.innerHTML = '';
     state.currentPlaylist.forEach((item, i) => {
         const div = document.createElement('div');
         div.className = 'pl-item' + (i === state.currentVideoIndex ? ' active' : '');
-        div.innerHTML = `
-            <div class="pl-thumb"><i class="fas fa-play-circle"></i></div>
-            <div class="pl-info"><div class="pl-title">${i + 1}. ${escapeHtml(item.title)}</div></div>
-        `;
+        div.innerHTML = '<div class="pl-thumb"><i class="fas fa-play-circle"></i></div><div class="pl-info"><div class="pl-title">' + (i+1) + '. ' + escapeHtml(item.title) + '</div></div>';
         div.addEventListener('click', () => playVideoAt(i));
         container.appendChild(div);
     });
 
-    // Playlist panel (in player)
     const panel = document.getElementById('playlistItems');
     panel.innerHTML = '';
     state.currentPlaylist.forEach((item, i) => {
         const div = document.createElement('div');
         div.className = 'playlist-item' + (i === state.currentVideoIndex ? ' active' : '');
-        div.innerHTML = `<span class="pi-num">${i + 1}</span><span class="pi-title">${escapeHtml(item.title)}</span>`;
+        div.innerHTML = '<span class="pi-num">' + (i+1) + '</span><span class="pi-title">' + escapeHtml(item.title) + '</span>';
         div.addEventListener('click', () => {
             playVideoAt(i);
             document.getElementById('playlistPanel').classList.add('hidden');
@@ -753,30 +699,26 @@ function renderPlaylist() {
 }
 
 function renderSidePanels() {
-    // Find current folder
     const currentFile = state.currentPlaylist[state.currentVideoIndex];
     if (!currentFile) return;
-
-    // PDFs in same folder
     const pdfList = document.getElementById('pdfList');
-    pdfList.innerHTML = '';
     const videos = document.getElementById('sideVideoList');
+    pdfList.innerHTML = '';
     videos.innerHTML = '';
 
-    // Find folder from file path
     const folder = findFolderByFile(currentFile);
     if (folder) {
         folder.files.forEach(f => {
             if (f.type === 'pdf') {
                 const div = document.createElement('div');
                 div.className = 'pdf-item';
-                div.innerHTML = `<i class="fas fa-file-pdf"></i> ${escapeHtml(f.title)}`;
+                div.innerHTML = '<i class="fas fa-file-pdf"></i> ' + escapeHtml(f.title);
                 div.addEventListener('click', () => openPDF(f.url, f.title));
                 pdfList.appendChild(div);
             } else if (f.type === 'video' && f.url !== currentFile.url) {
                 const div = document.createElement('div');
                 div.className = 'side-video-item';
-                div.innerHTML = `<i class="fas fa-video"></i> ${escapeHtml(f.title)}`;
+                div.innerHTML = '<i class="fas fa-video"></i> ' + escapeHtml(f.title);
                 div.addEventListener('click', () => {
                     const idx = state.currentPlaylist.findIndex(p => p.url === f.url);
                     if (idx >= 0) playVideoAt(idx);
@@ -794,15 +736,13 @@ function findFolderByFile(file) {
 
 // ===== ADD VIEW =====
 function initAddView() {
-    // New folder
     document.getElementById('newFolderBtn').addEventListener('click', () => {
         const name = prompt('Folder name:');
         if (!name) return;
         const id = genId();
         state.fileSystem.folders[id] = { id, name, parentId: state.currentFolderId || 'root', files: [] };
-        saveState();
-        renderExplorer();
-        showToast(`Folder "${name}" created`);
+        saveState(); renderExplorer();
+        showToast('Folder "' + name + '" created');
     });
 
     document.getElementById('newSubFolderBtn').addEventListener('click', () => {
@@ -811,9 +751,332 @@ function initAddView() {
         const id = genId();
         const parent = state.currentFolderId || 'root';
         state.fileSystem.folders[id] = { id, name, parentId: parent, files: [] };
-        saveState();
-        renderExplorer();
-        showToast(`Subfolder "${name}" created`);
+        saveState(); renderExplorer();
+        showToast('Subfolder "' + name + '" created');
     });
 
-    document.getElementById('upDirBtn').   
+    document.getElementById('upDirBtn').addEventListener('click', () => {
+        const cur = state.fileSystem.folders[state.currentFolderId || 'root'];
+        if (cur && cur.parentId) {
+            state.currentFolderId = cur.parentId;
+        } else {
+            state.currentFolderId = null;
+        }
+        renderExplorer();
+    });
+
+    // TXT file import
+    document.getElementById('txtFileInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            parseTxtAndImport(ev.target.result);
+        };
+        reader.readAsText(file);
+    });
+
+    // Direct file upload
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (!files.length) return;
+        Array.from(files).forEach(f => {
+            const isVideo = /\.(mp4|m3u8)$/i.test(f.name);
+            const isPDF = /\.pdf$/i.test(f.name);
+            const isImage = /\.(png|jpg|jpeg|webp)$/i.test(f.name);
+            const type = isVideo ? 'video' : isPDF ? 'pdf' : isImage ? 'image' : 'file';
+            // For local files we can't get a URL on static hosting, so show warning
+            showToast('Local file "' + f.name + '" - use URL fetcher for remote files');
+        });
+    });
+
+    // URL Fetcher
+    document.getElementById('fetchAddBtn').addEventListener('click', () => {
+        const title = document.getElementById('fetchTitle').value.trim();
+        const url = document.getElementById('fetchUrl').value.trim();
+        const folderId = document.getElementById('fetchFolder').value || 'root';
+
+        if (!url) { showToast('Enter a URL'); return; }
+        if (!title) { showToast('Enter a title'); return; }
+
+        // Show confirm modal
+        document.getElementById('confirmFileName').textContent = title;
+        document.getElementById('confirmFolder').textContent = getFolderPath(folderId);
+        populateFolderSelect('confirmFolderSelect', folderId);
+        document.getElementById('confirmModal').classList.remove('hidden');
+
+        document.getElementById('confirmOk').onclick = () => {
+            const finalFolder = document.getElementById('confirmFolderSelect').value || folderId;
+            const isVideo = /\.(mp4|m3u8)$/i.test(url);
+            const isPDF = /\.pdf$/i.test(url);
+            const type = isVideo ? 'video' : isPDF ? 'pdf' : 'file';
+
+            state.fileSystem.folders[finalFolder].files.push({
+                title: title,
+                url: url,
+                type: type,
+                folderId: finalFolder
+            });
+            saveState();
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('fetchTitle').value = '';
+            document.getElementById('fetchUrl').value = '';
+            renderExplorer();
+            showToast('Added: ' + title);
+
+            // Preview if video
+            if (isVideo) {
+                const pp = document.getElementById('previewPlayer');
+                loadVideo(url, title);
+            }
+        };
+
+        document.getElementById('confirmCancel').onclick = () => {
+            document.getElementById('confirmModal').classList.add('hidden');
+        };
+    });
+}
+
+function parseTxtAndImport(text) {
+    const lines = text.split('\n').filter(l => l.trim() !== '');
+    let imported = 0;
+
+    lines.forEach(line => {
+        const parts = line.split(',').map(p => p.trim());
+        let subject = null, topic = null, title = null, url = null;
+
+        if (parts.length === 4) {
+            subject = parts[0]; topic = parts[1]; title = parts[2]; url = parts[3];
+        } else if (parts.length === 3) {
+            // Could be Subject+Title+Url or Topic+Title+Url
+            if (parts[2].startsWith('http')) { title = parts[1]; url = parts[2]; subject = parts[0]; }
+            else { subject = parts[0]; topic = parts[1]; url = parts[2]; title = parts[2].split('/').pop(); }
+        } else if (parts.length === 2) {
+            if (parts[1].startsWith('http')) { title = parts[0]; url = parts[1]; }
+            else { subject = parts[0]; topic = parts[1]; }
+        } else if (parts.length === 1) {
+            if (parts[0].startsWith('http')) { url = parts[0]; title = parts[0].split('/').pop(); }
+            else { subject = parts[0]; }
+        }
+
+        if (!url) return;
+
+        // Create folder structure
+        let folderId = 'root';
+        if (subject) {
+            folderId = findOrCreateFolder(subject, 'root');
+        }
+        if (topic) {
+            folderId = findOrCreateFolder(topic, folderId);
+        }
+
+        const isVideo = /\.(mp4|m3u8)$/i.test(url);
+        const isPDF = /\.pdf$/i.test(url);
+        const type = isVideo ? 'video' : isPDF ? 'pdf' : 'file';
+
+        state.fileSystem.folders[folderId].files.push({
+            title: title || url.split('/').pop(),
+            url: url,
+            type: type,
+            folderId: folderId
+        });
+        imported++;
+    });
+
+    saveState();
+    renderExplorer();
+    showToast('Imported ' + imported + ' items from TXT');
+}
+
+function findOrCreateFolder(name, parentId) {
+    // Search existing
+    for (const id in state.fileSystem.folders) {
+        const f = state.fileSystem.folders[id];
+        if (f.name === name && f.parentId === parentId) return id;
+    }
+    // Create
+    const id = genId();
+    state.fileSystem.folders[id] = { id, name, parentId, files: [] };
+    return id;
+}
+
+function getFolderPath(folderId) {
+    const parts = [];
+    let cur = state.fileSystem.folders[folderId];
+    while (cur) {
+        parts.unshift(cur.name);
+        cur = cur.parentId ? state.fileSystem.folders[cur.parentId] : null;
+    }
+    return '/' + parts.join('/');
+}
+
+function populateFolderSelect(selectId, selectedId) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    function addOptions(parentId, depth) {
+        const children = Object.values(state.fileSystem.folders).filter(f => f.parentId === parentId);
+        children.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.id;
+            opt.textContent = '  '.repeat(depth) + f.name;
+            if (f.id === selectedId) opt.selected = true;
+            sel.appendChild(opt);
+            addOptions(f.id, depth + 1);
+        });
+    }
+    addOptions('root', 0);
+}
+
+function renderExplorer() {
+    const container = document.getElementById('explorerContent');
+    container.innerHTML = '';
+    const currentId = state.currentFolderId || 'root';
+    const current = state.fileSystem.folders[currentId];
+    document.getElementById('explorerPath').textContent = getFolderPath(currentId);
+
+    // Subfolders
+    const children = Object.values(state.fileSystem.folders).filter(f => f.parentId === currentId);
+    children.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'explorer-item folder';
+        div.innerHTML = '<i class="fas fa-folder"></i> ' + escapeHtml(f.name);
+        div.addEventListener('click', () => { state.currentFolderId = f.id; renderExplorer(); });
+        container.appendChild(div);
+    });
+
+    // Files
+    current.files.forEach((f, i) => {
+        const icon = f.type === 'video' ? 'fas fa-video' : f.type === 'pdf' ? 'fas fa-file-pdf' : 'fas fa-file';
+        const div = document.createElement('div');
+        div.className = 'explorer-item file';
+        div.innerHTML = '<i class="' + icon + '"></i> ' + escapeHtml(f.title);
+        div.addEventListener('click', () => {
+            state.currentPlaylist = current.files.filter(x => x.type === 'video');
+            const idx = state.currentPlaylist.findIndex(p => p.url === f.url);
+            if (idx >= 0) {
+                switchView('home');
+                playVideoAt(idx);
+            } else if (f.type === 'pdf') {
+                openPDF(f.url, f.title);
+            }
+        });
+        container.appendChild(div);
+    });
+
+    // Populate fetch folder select
+    populateFolderSelect('fetchFolder', currentId);
+}
+
+// ===== EXPLORE VIEW =====
+function initExploreView() {
+    document.getElementById('exploreDeleteFolder').addEventListener('click', () => {
+        if (!state.currentFolderId || state.currentFolderId === 'root') return;
+        if (!confirm('Delete this folder and all its contents?')) return;
+        const id = state.currentFolderId;
+        deleteFolderRecursive(id);
+        state.currentFolderId = null;
+        saveState();
+        renderExplore();
+        showToast('Folder deleted');
+    });
+}
+
+function deleteFolderRecursive(id) {
+    const children = Object.values(state.fileSystem.folders).filter(f => f.parentId === id);
+    children.forEach(c => deleteFolderRecursive(c.id));
+    delete state.fileSystem.folders[id];
+}
+
+function renderExplore() {
+    const grid = document.getElementById('exploreGrid');
+    const breadcrumb = document.getElementById('exploreBreadcrumb');
+    grid.innerHTML = '';
+    breadcrumb.innerHTML = '';
+
+    const currentId = state.currentFolderId || 'root';
+    const current = state.fileSystem.folders[currentId];
+
+    // Breadcrumb
+    let path = [];
+    let cur = current;
+    while (cur) {
+        path.unshift(cur);
+        cur = cur.parentId ? state.fileSystem.folders[cur.parentId] : null;
+    }
+    path.forEach((p, i) => {
+        const span = document.createElement('span');
+        span.textContent = p.name;
+        span.addEventListener('click', () => { state.currentFolderId = p.id === 'root' ? null : p.id; renderExplore(); });
+        breadcrumb.appendChild(span);
+        if (i < path.length - 1) {
+            const sep = document.createElement('span');
+            sep.textContent = ' / ';
+            sep.style.cursor = 'default';
+            breadcrumb.appendChild(sep);
+        }
+    });
+
+    // Responsive columns
+    const w = window.innerWidth;
+    if (w > 1400) grid.className = 'explore-grid cols-6';
+    else if (w > 1100) grid.className = 'explore-grid cols-5';
+    else if (w > 800) grid.className = 'explore-grid cols-4';
+    else grid.className = 'explore-grid';
+
+    // Subfolders
+    const children = Object.values(state.fileSystem.folders).filter(f => f.parentId === currentId);
+    children.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'explore-card';
+        card.innerHTML = '<div class="card-thumb"><i class="fas fa-folder" style="font-size:2.5rem;color:var(--warning)"></i></div><div class="card-info"><div class="card-title">' + escapeHtml(f.name) + '</div><div class="card-type"><i class="fas fa-folder"></i> Folder (' + f.files.length + ' items)</div></div>';
+        card.addEventListener('click', () => { state.currentFolderId = f.id; renderExplore(); });
+        grid.appendChild(card);
+    });
+
+    // Files
+    current.files.forEach(f => {
+        const icon = f.type === 'video' ? 'fas fa-play-circle' : f.type === 'pdf' ? 'fas fa-file-pdf' : 'fas fa-file';
+        const color = f.type === 'video' ? 'var(--accent)' : f.type === 'pdf' ? 'var(--danger)' : 'var(--text-muted)';
+        const card = document.createElement('div');
+        card.className = 'explore-card';
+        card.innerHTML = '<div class="card-thumb"><i class="' + icon + '" style="font-size:2.5rem;color:' + color + '"></i></div><div class="card-info"><div class="card-title">' + escapeHtml(f.title) + '</div><div class="card-type"><i class="' + icon + '"></i> ' + f.type.toUpperCase() + '</div></div>';
+        card.addEventListener('click', () => {
+            if (f.type === 'video') {
+                state.currentPlaylist = current.files.filter(x => x.type === 'video');
+                const idx = state.currentPlaylist.findIndex(p => p.url === f.url);
+                if (idx >= 0) { switchView('home'); playVideoAt(idx); }
+            } else if (f.type === 'pdf') {
+                openPDF(f.url, f.title);
+            }
+        });
+        grid.appendChild(card);
+    });
+}
+
+// ===== PDF VIEWER =====
+function initPdfViewer() {
+    document.getElementById('pdfClose').addEventListener('click', () => {
+        document.getElementById('pdfModal').classList.add('hidden');
+        document.getElementById('pdfFrame').src = '';
+    });
+    document.getElementById('pdfBack').addEventListener('click', () => {
+        document.getElementById('pdfModal').classList.add('hidden');
+        document.getElementById('pdfFrame').src = '';
+    });
+    document.getElementById('pdfDownload').addEventListener('click', () => {
+        const url = document.getElementById('pdfFrame').src;
+        if (url) window.open(url, '_blank');
+    });
+}
+
+function openPDF(url, title) {
+    document.getElementById('pdfTitle').textContent = title || 'PDF';
+    document.getElementById('pdfFrame').src = url;
+    document.getElementById('pdfModal').classList.remove('hidden');
+}
+
+// ===== RENDER FILE SYSTEM (initial) =====
+function renderFileSystem() {
+    renderExplorer();
+    renderExplore();
+}   
