@@ -21,6 +21,14 @@ document.addEventListener('DOMContentLoaded', function(){
   initPlayer(); initAddView(); initExploreView();
   initPieMenu(); initThemePanel(); initPdfViewer();
   renderExplorer(); renderExplore();
+  document.addEventListener('DOMContentLoaded', function(){
+  loadState(); applyTheme(state.theme);
+  initLogin(); initSidebar(); initViews();
+  initPlayer(); initAddView(); initExploreView();
+  initPieMenu(); initThemePanel(); initPdfViewer();
+  initExplorerActions();  // <-- ADD THIS LINE
+  renderExplorer(); renderExplore();
+});   
 });
 function saveState(){
   localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({fileSystem:state.fileSystem, theme:state.theme, defaultVolume:state.playerState.defaultVolume}));
@@ -300,72 +308,28 @@ function parseTxt(text){
   lines.forEach(function(line){
     var parts=line.split(',').map(function(p){return p.trim();}).filter(function(p){return p!=='';});
     if(parts.length<2)return;
-
-    // URL is ALWAYS the last field
     var url=parts[parts.length-1];
     if(url.indexOf('http')!==0)return;
-
-    // Everything before URL = folder hierarchy
-    var fields=parts.slice(0,parts.length-1);
-    var title=fields[fields.length-1]; // last non-url field = title
-    var hierarchy=fields.slice(0,fields.length-1); // rest = folder levels
-
-    // Determine which level each field belongs to
-    // Max 4 folder levels: Platform > Batch > Subject > Topic
-    var levels=['Platform','Batch','Subject','Topic'];
-    var folderNames=[];
-
-    // If hierarchy has 4 items: Platform,Batch,Subject,Topic
-    // If 3: could be Batch,Subject,Topic OR Platform,Subject,Topic
-    // We use position-based: always map to Platform,Batch,Subject,Topic
-    // but if fewer, start from the DEEPEST possible (skip missing top levels)
-    // User rule: if Platform missing -> start from Batch
-    // if Batch missing -> start from Subject (under Platform)
-
-    // Simplest logic: map fields left-to-right into [Platform,Batch,Subject,Topic]
-    // If fewer than 4, they fill from the RIGHT (deepest)
-    var maxLevels=4;
-    var startIdx=maxLevels-hierarchy.length;
-    for(var i=0;i<hierarchy.length;i++){
-      folderNames.push(hierarchy[i]);
+    var title=parts[parts.length-2];
+    var folderFields=parts.slice(0,parts.length-2);
+    if(folderFields.length===0){
+      state.fileSystem.folders['root'].files.push({title:title,url:url,type:fileType(url),folderId:'root'});
+      count++; return;
     }
-
-    // Build folder path: root > [Platform] > [Batch] > [Subject] > [Topic]
     var fid='root';
-    for(var j=0;j<folderNames.length;j++){
-      var levelIdx=startIdx+j;
-      var folderName=folderNames[j];
-      // If this is the first level and we have 4 fields, it's Platform
-      // If 3 fields, first is Batch (Platform is implicit root)
-      // We just create folders by name under current position
-      fid=findOrCreateFolder(folderName,fid);
+    for(var i=0;i<folderFields.length;i++){
+      fid=findOrCreateFolder(folderFields[i],fid);
     }
-
-    var isV=/\.(mp4|m3u8)$/i.test(url);
-    var isP=/\.pdf$/i.test(url);
-    var type=isV?'video':isP?'pdf':'file';
-
-    state.fileSystem.folders[fid].files.push({
-      title:title||url.split('/').pop(),
-      url:url,
-      type:type,
-      folderId:fid
-    });
+    state.fileSystem.folders[fid].files.push({title:title,url:url,type:fileType(url),folderId:fid});
     count++;
   });
-  saveState();
-  renderExplorer();
-  toast('Imported '+count+' items');
-}     
-function initExploreView(){
-  document.getElementById('exploreDeleteFolder').addEventListener('click',function(){
-    if(!state.currentFolderId||state.currentFolderId==='root')return;
-    if(!confirm('Delete this folder and all contents?'))return;
-    deleteFolderRecursive(state.currentFolderId);
-    state.currentFolderId=null;
-    saveState(); renderExplore(); toast('Folder deleted');
-  });
+  saveState(); renderExplorer(); toast('Imported '+count+' items');
 }
+function fileType(url){
+  if(/\.(mp4|m3u8)$/i.test(url))return 'video';
+  if(/\.pdf$/i.test(url))return 'pdf';
+  return 'file';
+}   
 function deleteFolderRecursive(id){
   var ch=Object.values(state.fileSystem.folders).filter(function(f){return f.parentId===id;});
   ch.forEach(function(c){deleteFolderRecursive(c.id);});
@@ -441,28 +405,120 @@ function renderExplorer(){
   var cid=state.currentFolderId||'root';
   var cur=state.fileSystem.folders[cid];
   document.getElementById('explorerPath').textContent=getFolderPath(cid);
+
   var children=Object.values(state.fileSystem.folders).filter(function(f){return f.parentId===cid;});
   children.forEach(function(f){
     var d=document.createElement('div');
     d.className='explorer-item folder';
     d.innerHTML='<i class="fas fa-folder"></i> '+esc(f.name);
-    d.addEventListener('click',function(){state.currentFolderId=f.id;renderExplorer();});
+    d.addEventListener('click',function(){state.currentFolderId=f.id;selectedItems={};renderExplorer();});
     container.appendChild(d);
   });
-  cur.files.forEach(function(f){
+
+  cur.files.forEach(function(f,i){
+    var key=cid+'_'+i;
+    var isSelected=selectedItems[key];
     var icon=f.type==='video'?'fas fa-video':f.type==='pdf'?'fas fa-file-pdf':'fas fa-file';
     var d=document.createElement('div');
-    d.className='explorer-item file';
-    d.innerHTML='<i class="'+icon+'"></i> '+esc(f.title);
+    d.className='explorer-item file'+(isSelected?' selected':'');
+    d.innerHTML='<input type="checkbox" '+(isSelected?'checked':'')+' style="accent-color:var(--accent)"> <i class="'+icon+'"></i> '+esc(f.title);
+    d.querySelector('input').addEventListener('click',function(e){
+      e.stopPropagation();
+      if(selectedItems[key])delete selectedItems[key]; else selectedItems[key]=true;
+      renderExplorer();
+    });
     d.addEventListener('click',function(){
       if(f.type==='video'){
         state.currentPlaylist=cur.files.filter(function(x){return x.type==='video';});
         var idx=-1;
-        for(var i=0;i<state.currentPlaylist.length;i++){if(state.currentPlaylist[i].url===f.url){idx=i;break;}}
+        for(var j=0;j<state.currentPlaylist.length;j++){if(state.currentPlaylist[j].url===f.url){idx=j;break;}}
         if(idx>=0){switchView('home');playVideoAt(idx);}
       } else if(f.type==='pdf'){ openPDF(f.url,f.title); }
     });
     container.appendChild(d);
   });
+
   populateFolderSelect('fetchFolder',cid);
+}   
+
+function initExplorerActions(){
+  document.getElementById('selectAllBtn').addEventListener('click',function(){
+    var cid=state.currentFolderId||'root';
+    var cur=state.fileSystem.folders[cid];
+    selectedItems={};
+    cur.files.forEach(function(f,i){ selectedItems[cid+'_'+i]=true; });
+    renderExplorer();
+    toast('Selected '+cur.files.length+' items');
+  });
+
+  document.getElementById('deleteSelectedBtn').addEventListener('click',function(){
+    var keys=Object.keys(selectedItems);
+    if(keys.length===0){toast('Nothing selected. Use Select All first.');return;}
+    if(!confirm('Delete '+keys.length+' selected items?'))return;
+    // Group by folder
+    var byFolder={};
+    keys.forEach(function(k){
+      var parts=k.split('_');
+      var fid=parts.slice(0,-1).join('_');
+      var idx=parseInt(parts[parts.length-1]);
+      if(!byFolder[fid])byFolder[fid]=[];
+      byFolder[fid].push(idx);
+    });
+    // Delete from highest index first to avoid shifting
+    Object.keys(byFolder).forEach(function(fid){
+      var idxs=byFolder[fid].sort(function(a,b){return b-a;});
+      idxs.forEach(function(i){ state.fileSystem.folders[fid].files.splice(i,1); });
+    });
+    selectedItems={};
+    saveState(); renderExplorer(); toast('Items deleted');
+  });
+
+  document.getElementById('moveSelectedBtn').addEventListener('click',function(){
+    var keys=Object.keys(selectedItems);
+    if(keys.length===0){toast('Nothing selected. Use Select All first.');return;}
+    // Populate target folder select
+    var sel=document.getElementById('moveTargetSelect');
+    sel.innerHTML='';
+    (function addOpts(pid,depth){
+      var kids=Object.values(state.fileSystem.folders).filter(function(f){return f.parentId===pid;});
+      kids.forEach(function(f){
+        var o=document.createElement('option');
+        o.value=f.id;
+        o.textContent='  '.repeat(depth)+f.name;
+        sel.appendChild(o);
+        addOpts(f.id,depth+1);
+      });
+    })('root',0);
+    document.getElementById('moveModal').classList.remove('hidden');
+
+    document.getElementById('moveOk').onclick=function(){
+      var target=document.getElementById('moveTargetSelect').value;
+      if(!target){toast('Select a target folder');return;}
+      var byFolder={};
+      keys.forEach(function(k){
+        var parts=k.split('_');
+        var fid=parts.slice(0,-1).join('_');
+        var idx=parseInt(parts[parts.length-1]);
+        if(!byFolder[fid])byFolder[fid]=[];
+        byFolder[fid].push(idx);
+      });
+      // Move items
+      Object.keys(byFolder).forEach(function(fid){
+        if(fid===target)return;
+        var idxs=byFolder[fid].sort(function(a,b){return b-a;});
+        idxs.forEach(function(i){
+          var item=state.fileSystem.folders[fid].files.splice(i,1)[0];
+          item.folderId=target;
+          state.fileSystem.folders[target].files.push(item);
+        });
+      });
+      selectedItems={};
+      saveState(); renderExplorer();
+      document.getElementById('moveModal').classList.add('hidden');
+      toast('Items moved');
+    };
+    document.getElementById('moveCancel').onclick=function(){
+      document.getElementById('moveModal').classList.add('hidden');
+    };
+  });
 }   
