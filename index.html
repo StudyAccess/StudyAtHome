@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Study Premium Learning</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">   
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">   
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -333,24 +334,23 @@
             </div>
             <button class="btn-primary" id="btnSaveUser"><i class="fas fa-save"></i> Save</button>
           </div>
-
+          
           <div class="glass-card">
-            <h3><i class="fas fa-users"></i> Guest Users</h3>
+            <h3><i class="fas fa-users"></i> All Users</h3>
             <div id="guestList" class="guest-list"></div>
             <div class="guest-add-row">
-              <input type="text" id="newGuestUser" placeholder="Username">
+              <input type="text" id="newGuestUser" placeholder="New guest username">
               <input type="password" id="newGuestPass" placeholder="Password">
-              <button class="btn-primary" id="btnAddGuest"><i class="fas fa-plus"></i> Add</button>
+              <button class="btn-primary" id="btnAddGuest"><i class="fas fa-plus"></i> Add Guest</button>
             </div>
           </div>
-
+          
           <div class="glass-card">
-            <h3><i class="fas fa-shield-alt"></i> Folder Permissions (Guest Access)</h3>
-            <p class="hint">Check folders that guest users can access:</p>
+            <h3><i class="fas fa-shield-alt"></i> Folder Permissions</h3>
+            <p class="hint">Check folders that <b>all guest users</b> can access:</p>
             <div id="permissionList" class="permission-list"></div>
             <button class="btn-primary" id="btnSavePerms"><i class="fas fa-save"></i> Save Permissions</button>
-          </div>
-        </div>
+          </div>   
       </section>
 
     </main>
