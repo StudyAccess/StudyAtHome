@@ -1,750 +1,364 @@
-
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Study Premium Learning</title>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
-<style>
-:root{--bg:#eef2ff;--panel:rgba(255,255,255,.62);--panel2:rgba(255,255,255,.82);--text:#172033;--muted:#68738b;--line:rgba(80,90,120,.16);--a:#6d5dfc;--b:#22c1ff;--danger:#ef476f;--shadow:0 20px 60px rgba(46,35,105,.13);--radius:24px;--sidebar:270px}
-[data-theme=dark]{--bg:#090b14;--panel:rgba(23,27,43,.68);--panel2:rgba(26,31,49,.9);--text:#f6f7ff;--muted:#9da6bd;--line:rgba(255,255,255,.12);--shadow:0 25px 70px #0008}
-[data-theme=ocean]{--bg:#e8f8ff;--a:#008cff;--b:#00c2b8}
-[data-theme=forest]{--bg:#edf8ef;--a:#138a52;--b:#8ac926}
-[data-theme=rose]{--bg:#fff0f5;--a:#e34d8f;--b:#ff8a5b}
-[data-theme=lavender]{--bg:#f5f0ff;--a:#865dff;--b:#c77dff}
-[data-theme=sunset]{--bg:#fff3e9;--a:#ff6b35;--b:#ffb703}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:radial-gradient(circle at 10% 10%,color-mix(in srgb,var(--a) 20%,transparent),transparent 32%),radial-gradient(circle at 90% 15%,color-mix(in srgb,var(--b) 18%,transparent),transparent 30%),var(--bg);min-height:100vh}button,input,select,textarea{font:inherit}button{border:0;color:inherit;cursor:pointer}.glass{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
-.hidden{display:none!important}.app{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar);padding:20px;z-index:30;transition:.3s;overflow:auto}.sidebar.collapsed{width:82px}.brand{display:flex;align-items:center;gap:12px;padding:10px 8px 26px}.logo{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a),var(--b));color:white;font-size:22px;box-shadow:0 10px 30px color-mix(in srgb,var(--a) 30%,transparent)}.brand b{font-size:16px}.brand small{color:var(--muted);display:block;margin-top:2px}.sidebar.collapsed .brand-copy,.sidebar.collapsed .nav-label,.sidebar.collapsed .profile-copy{display:none}.menu-title{font-size:11px;letter-spacing:.16em;color:var(--muted);padding:8px 12px}.nav{display:grid;gap:7px}.nav button{width:100%;padding:13px 14px;border-radius:15px;background:transparent;text-align:left;display:flex;gap:12px;align-items:center}.nav button:hover,.nav button.active{background:color-mix(in srgb,var(--a) 12%,transparent);color:var(--a)}.nav i{width:22px;text-align:center;font-style:normal}.sidebar-bottom{position:sticky;bottom:0;padding-top:20px}.profile{display:flex;gap:10px;align-items:center;padding:12px;border-radius:18px}.avatar{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,var(--a),var(--b));color:white;display:grid;place-items:center;font-weight:800}.main{margin-left:var(--sidebar);transition:.3s;padding:18px;min-height:100vh}.sidebar.collapsed~.main{margin-left:82px}.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.top-actions{display:flex;gap:8px;align-items:center}.icon-btn,.pill-btn{min-width:42px;height:42px;padding:0 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(20px)}.pill-btn{display:flex;align-items:center;gap:8px}.page{display:none}.page.active{display:block}.hero{padding:28px;border-radius:var(--radius);margin-bottom:18px}.hero h1{margin:0 0 8px;font-size:clamp(24px,3vw,38px)}.muted{color:var(--muted)}.grid{display:grid;gap:16px}.folders{grid-template-columns:repeat(var(--cols,4),minmax(0,1fr))}.cards{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}.card{border-radius:20px;padding:15px;background:var(--panel);border:1px solid var(--line);transition:.2s}.card:hover{transform:translateY(-3px)}.folder-icon{height:115px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--a) 20%,transparent),color-mix(in srgb,var(--b) 20%,transparent));font-size:44px}.thumb{height:120px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#111827,#374151);color:white;font-size:30px;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.card h3{font-size:14px;margin:11px 0 4px}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px}.search{min-width:220px;flex:1;max-width:480px;padding:12px 15px;border-radius:15px;border:1px solid var(--line);background:var(--panel);color:var(--text);outline:0}
-.player-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px}.player-shell{border-radius:24px;overflow:hidden;background:#05060a;position:relative;box-shadow:var(--shadow)}.video{width:100%;aspect-ratio:16/9;display:block;background:#000;object-fit:contain}.player-overlay{position:absolute;inset:0;color:#fff;pointer-events:none}.p-top,.p-bottom{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:14px;pointer-events:auto;background:linear-gradient(#000b,transparent)}.p-top{top:0}.p-bottom{bottom:0;background:linear-gradient(transparent,#000c);display:block}.p-title{font-weight:700}.controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.ctrl{background:#0008;color:#fff;border:1px solid #fff2;border-radius:11px;padding:8px 10px}.center-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:68px;border-radius:50%;font-size:28px;background:#0008;color:#fff;border:1px solid #fff3;pointer-events:auto}.seek{display:flex;align-items:center;gap:9px}.range{flex:1;accent-color:var(--a)}.side-list{max-height:620px;overflow:auto;padding:14px;border-radius:22px}.list-item{display:flex;gap:10px;padding:10px;border-radius:14px;cursor:pointer}.list-item:hover,.list-item.playing{background:color-mix(in srgb,var(--a) 12%,transparent)}.mini{width:82px;height:52px;border-radius:10px;background:#111827;display:grid;place-items:center;color:#fff}.pdf-list{margin-top:18px}.lock .p-top,.lock .p-bottom,.lock .center-play,.lock .gesture-zone{display:none}.lock .unlock{display:block}.unlock{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:auto}.gesture-zone{position:absolute;inset:25% 0 25%;display:grid;grid-template-columns:1fr 1fr 1fr;pointer-events:auto}.gesture-zone div{min-height:80px}.modal{position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:100;padding:20px}.modal-card{width:min(720px,100%);max-height:90vh;overflow:auto;padding:24px;border-radius:24px}.form{display:grid;gap:12px}.field{display:grid;gap:6px}.field input,.field textarea,.field select{padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}.btn{padding:12px 16px;border-radius:13px;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700}.btn.secondary{background:var(--panel);color:var(--text);border:1px solid var(--line)}.drop{border:2px dashed color-mix(in srgb,var(--a) 40%,transparent);padding:30px;border-radius:20px;text-align:center}.login{min-height:100vh;display:grid;place-items:center;padding:20px;position:relative;overflow:hidden}.orb{position:absolute;width:340px;height:340px;border-radius:50%;filter:blur(30px);opacity:.45}.o1{background:var(--a);left:-100px;top:-80px}.o2{background:var(--b);right:-100px;bottom:-80px}.login-card{width:min(500px,100%);padding:32px;border-radius:30px;position:relative}.login-brand{text-align:center}.login-brand .logo{margin:auto;width:64px;height:64px;font-size:30px}.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:25px 0}.role{padding:16px;border-radius:17px;background:var(--panel);border:1px solid var(--line);text-align:left}.role.active{border-color:color-mix(in srgb,var(--a) 60%,transparent);background:color-mix(in srgb,var(--a) 12%,transparent)}.role strong{display:block}.login-foot{display:flex;gap:8px;margin-top:14px}.theme-pop{position:absolute;right:18px;top:58px;padding:10px;border-radius:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;z-index:50}.theme-pop button{padding:9px;border-radius:10px;background:transparent;text-align:left}.theme-pop button:hover{background:color-mix(in srgb,var(--a) 12%,transparent)}.toast{position:fixed;right:20px;bottom:20px;z-index:200;padding:13px 16px;border-radius:15px}.pie{position:fixed;right:22px;bottom:22px;z-index:80}.pie-center{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;box-shadow:0 12px 35px #0003}.pie-items{position:absolute;inset:auto 0 0 auto;width:170px;height:170px;pointer-events:none}.pie-items button{position:absolute;width:44px;height:44px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);opacity:0;transform:scale(.4);transition:.2s}.pie.open .pie-items{pointer-events:auto}.pie.open .pie-items button{opacity:1;transform:scale(1)}.pie-items button:nth-child(1){right:63px;bottom:122px}.pie-items button:nth-child(2){right:122px;bottom:63px}.pie-items button:nth-child(3){right:122px;bottom:5px}.pie-items button:nth-child(4){right:63px;bottom:-54px}.admin-only{display:none}.is-admin .admin-only{display:flex}
-@media(max-width:1050px){.player-layout{grid-template-columns:1fr}.side-list{max-height:360px}}@media(max-width:720px){:root{--sidebar:0px}.sidebar{transform:translateX(-100%);width:270px}.sidebar.mobile-open{transform:none}.main,.sidebar.collapsed~.main{margin-left:0;padding:10px}.topbar{height:60px}.login-card{padding:22px}.p-top{padding:9px}.p-bottom{padding:9px}.ctrl{padding:6px 8px}.gesture-zone{inset:30% 0}.pie{right:12px;bottom:12px}}
-
-/* Mobile navigation */
-#mobileMenu{display:none}
-@media (max-width:760px){
-  #mobileMenu{display:inline-flex}
-}
-</style></head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Study Premium Learning</title>
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+</head>
 <body>
-<div id="login" class="login">
- <div class="orb o1"></div><div class="orb o2"></div>
- <div class="login-card glass">
-  <div class="login-brand"><div class="logo">✦</div><h1>Study Premium Learning</h1><p class="muted">Learning made beautiful.</p></div>
-  <div class="roles"><button class="role active" data-role="guest">◉ <strong>Guest</strong><small class="muted">Start learning</small></button><button class="role" data-role="admin">♙ <strong>Admin</strong><small class="muted">Manage library</small></button></div>
-  <form id="loginForm" class="form"><div class="field"><label>Username</label><input id="username" required placeholder="Enter username" /></div><div class="field" id="passwordField"><label>Password</label><input id="password" type="password" placeholder="Admin password" /></div><button class="btn" type="submit">Enter Study Premium →</button></form>
-  <div class="login-foot"><button id="guestBtn" class="btn secondary" style="flex:1">Continue as Guest</button></div>
- </div>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card glass">
+        <div class="login-logo">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1>Study Premium Learning</h1>
+        <p class="login-sub">Sign in to continue</p>
+        <div class="login-tabs">
+            <button class="login-tab active" data-role="guest">Guest</button>
+            <button class="login-tab" data-role="admin">Admin</button>
+        </div>
+        <div class="login-form">
+            <input type="text" id="loginUser" placeholder="Username" autocomplete="off"/>
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="off"/>
+            <button id="loginBtn" class="btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </div>
+        <div class="login-hint">
+            <small>Admin: admin / admin123 &nbsp;|&nbsp; Guest: any / any</small>
+        </div>
+    </div>
 </div>
+
+<!-- ===== MAIN APP ===== -->
 <div id="app" class="app hidden">
- <aside id="sidebar" class="sidebar glass"><div class="brand"><div class="logo">✦</div><div class="brand-copy"><b>Study Premium</b><small>Learning workspace</small></div></div><div class="menu-title">MENU</div><nav class="nav"><button data-page="home" class="active"><i>⌂</i><span class="nav-label">Home</span></button><button data-page="add" class="admin-only"><i>＋</i><span class="nav-label">Add File / Link</span></button><button data-page="explore"><i>▦</i><span class="nav-label">Explore</span></button><button data-page="settings"><i>⚙</i><span class="nav-label">Settings</span></button></nav><div class="sidebar-bottom"><div class="profile glass" style="margin-top:10px"><div class="avatar" id="avatar">G</div><div class="profile-copy"><b id="userName">Guest</b><small class="muted" id="userRole">Guest</small></div><button id="logout" class="icon-btn" style="margin-left:auto">↪</button></div></div></aside>
- <main class="main"><header class="topbar"><div><button id="mobileMenu" class="icon-btn">☰</button></div><div class="top-actions"></div></header>
- <section id="home" class="page active"><div class="hero glass"><div class="muted">STUDY PREMIUM LEARNING</div><h1>Continue your learning.</h1><p class="muted">Playlists, PDFs and folders stay organized in one aesthetic workspace.</p></div><div class="player-layout"><div><div class="player-shell" id="playerShell"><video id="video" class="video" playsinline></video><div class="player-overlay"><div class="p-top"><span class="p-title" id="videoTitle">Select a video</span><div class="controls"><button class="ctrl" id="lock">🔒</button><button class="ctrl" id="loop">⟳</button><button class="ctrl" id="aspect">▣</button></div></div><div class="gesture-zone"><div data-seek="-30"></div><div data-seek="-10"></div><div data-seek="10"></div></div><button id="unlock" class="unlock ctrl">🔓 Unlock controls</button><button id="centerPlay" class="center-play">▶</button><div class="p-bottom"><div class="seek"><span id="current">0:00</span><input id="progress" class="range" type="range" min="0" max="100" value="0"><span id="duration">0:00</span></div><div class="controls"><button class="ctrl" id="prev">⏮</button><button class="ctrl" id="play">▶</button><button class="ctrl" id="next">⏭</button><span style="flex:1"></span><button class="ctrl" id="speedDown">−</button><button class="ctrl" id="speed">1.0x</button><button class="ctrl" id="speedUp">＋</button><select class="ctrl" id="qualitySelect" aria-label="Select video quality"><option value="auto">Quality</option></select><button class="ctrl" id="pip">▣</button><button class="ctrl" id="full">⛶</button></div></div></div><div class="toolbar" style="margin-top:12px"><div class="muted" id="folderNow">No folder selected</div></div></div></div></section>
- <section id="add" class="page"><div class="hero glass"><div class="muted">LIBRARY IMPORT</div><h1>Add File / Link</h1><p class="muted">Import URLs or upload a .txt manifest. Subject → Topic → Title becomes your folder structure.</p></div><div class="glass" style="padding:22px"><div class="toolbar"><div><b>Import content</b><div class="muted">Supported: .mp4, .m3u8, master.m3u8, playlist-vod.m3u8, .pdf</div></div><input id="txtFile" type="file" accept=".txt,text/plain" /></div><div class="form"><div class="field"><label>URL</label><input id="url" placeholder="https://example.com/video.m3u8 or document.pdf" /></div><div class="field"><label>Title</label><input id="title" placeholder="Lesson title" /></div><div class="field"><label>Subject</label><input id="subject" placeholder="Subject / folder" /></div><div class="field"><label>Topic</label><input id="topic" placeholder="Topic / subfolder" /></div><div class="field"><label>Save into</label><select id="saveFolder"></select></div><button id="addUrl" class="btn">Add to library</button></div><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><div class="drop" id="drop">Drop a .txt manifest here or choose a file above.<br><small class="muted">Accepted lines: Subject|Topic|Title|Url, Subject+Topic+Title+Url, Title+Url, or bare URL.</small></div></div></section>
- <section id="explore" class="page"><div class="hero glass"><div class="muted">YOUR LIBRARY</div><h1>Explore</h1><p class="muted">Browse folders and manage every imported lesson.</p></div><div class="explorer-toolbar">
-      <input id="search" class="search" placeholder="Search folders and lessons…">
-      <button id="newFolder" class="btn" type="button">＋ New folder</button>
-      <button id="selectAll" class="btn" type="button">Select all</button>
-      <button id="deleteSelected" class="btn danger" type="button">Delete selected</button>
-    </div><div id="folders" class="grid folders" style="--cols:4"></div></section>
- <section id="settings" class="page"><div class="hero glass"><div class="muted">PREFERENCES</div><h1>Settings</h1><p class="muted">Player and workspace preferences.</p></div><div class="grid cards"><div class="card glass"><h3>Playback speed</h3><p class="muted">Quick menu: 0.7x, 1x, 1.5x, 2x, 2.5x, 3x, 3.5x, 4x.</p></div><div class="card glass"><h3>Gesture controls</h3><p class="muted">Double tap left/right for −30/−10 and +10/+30. Vertical swipe changes brightness or volume depending on side.</p></div><div class="card glass"><h3>Theme</h3><p class="muted">Choose Light, Dark, Ocean, Forest, Rose, Lavender or Sunset from the top-right palette.</p></div></div></section>
- </main>
+
+    <!-- TOP BAR -->
+    <nav class="topbar glass">
+        <div class="topbar-left">
+            <button id="sidebarToggle" class="icon-btn" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title">
+                <i class="fas fa-graduation-cap logo-icon"></i>
+                <span>Study Premium Learning</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button id="pieMenuBtn" class="icon-btn" title="Pie Menu">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <button id="themeToggle" class="icon-btn theme-toggle" title="Change Theme">
+                <i class="fas fa-palette"></i>
+            </button>
+            <button id="userBtn" class="icon-btn" title="User">
+                <i class="fas fa-user"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- PIE MENU -->
+    <div id="pieMenu" class="pie-menu hidden">
+        <div class="pie-item" data-action="theme"><i class="fas fa-palette"></i></div>
+        <div class="pie-item" data-action="settings"><i class="fas fa-cog"></i></div>
+        <div class="pie-item" data-action="about"><i class="fas fa-info-circle"></i></div>
+        <div class="pie-item" data-action="logout"><i class="fas fa-sign-out-alt"></i></div>
+    </div>
+
+    <!-- THEME PANEL -->
+    <div id="themePanel" class="theme-panel glass hidden">
+        <h4>Themes</h4>
+        <div class="theme-grid">
+            <button class="theme-swatch" data-theme="light" title="Light"><span>☀️</span></button>
+            <button class="theme-swatch" data-theme="dark" title="Dark"><span>🌙</span></button>
+            <button class="theme-swatch" data-theme="ocean" title="Ocean"><span>🌊</span></button>
+            <button class="theme-swatch" data-theme="forest" title="Forest"><span>🌲</span></button>
+            <button class="theme-swatch" data-theme="rose" title="Rose"><span>🌹</span></button>
+            <button class="theme-swatch" data-theme="lavender" title="Lavender"><span>💜</span></button>
+            <button class="theme-swatch" data-theme="midnight" title="Midnight"><span>🌌</span></button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar glass">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-compass"></i> Menu</h3>
+            <button id="sidebarCollapse" class="icon-btn"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-view="home">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="#" class="nav-item" data-view="add">
+                <i class="fas fa-plus-circle"></i>
+                <span class="nav-text">Add File / Link</span>
+            </a>
+            <a href="#" class="nav-item" data-view="explore">
+                <i class="fas fa-folder-open"></i>
+                <span class="nav-text">Explore</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="btn-ghost">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="nav-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main id="content" class="content">
+
+        <!-- HOME VIEW -->
+        <section id="view-home" class="view active">
+            <div class="home-layout">
+                <!-- PLAYER AREA (50%) -->
+                <div class="player-area">
+                    <div class="video-container" id="videoContainer">
+                        <video id="videoPlayer" playsinline></video>
+
+                        <!-- PLAYER OVERLAY CONTROLS -->
+                        <div id="playerOverlay" class="player-overlay">
+                            <!-- Top Left -->
+                            <div class="ctrl-tl">
+                                <button id="ctrlLock" class="ctrl-btn" title="Lock Controls"><i class="fas fa-lock-open"></i></button>
+                                <span id="ctrlTitle" class="ctrl-title">No video loaded</span>
+                            </div>
+
+                            <!-- Top Right -->
+                            <div class="ctrl-tr">
+                                <button id="ctrlLoop" class="ctrl-btn" title="Loop"><i class="fas fa-redo"></i></button>
+                                <button id="ctrlAspect" class="ctrl-btn" title="Aspect Ratio"><i class="fas fa-expand"></i></button>
+                                <div class="ui-scaler">
+                                    <button id="ctrlScaleDown" class="ctrl-btn-sm">−0.5</button>
+                                    <span id="ctrlScaleVal">100%</span>
+                                    <button id="ctrlScaleUp" class="ctrl-btn-sm">+0.5</button>
+                                </div>
+                            </div>
+
+                            <!-- Left Side -->
+                            <div class="ctrl-left">
+                                <button id="ctrlReverse" class="ctrl-btn" title="Reverse (dbl-tap left)"><i class="fas fa-backward"></i></button>
+                                <button id="ctrlBrightness" class="ctrl-btn" title="Brightness (swipe up/down)"><i class="fas fa-sun"></i></button>
+                            </div>
+
+                            <!-- Center -->
+                            <div class="ctrl-center">
+                                <button id="ctrlPlayPause" class="ctrl-btn ctrl-btn-lg"><i class="fas fa-play"></i></button>
+                            </div>
+
+                            <!-- Right Side -->
+                            <div class="ctrl-right">
+                                <button id="ctrlForward" class="ctrl-btn" title="Forward (dbl-tap right)"><i class="fas fa-forward"></i></button>
+                                <button id="ctrlVolume" class="ctrl-btn" title="Volume (swipe up/down)"><i class="fas fa-volume-up"></i></button>
+                            </div>
+
+                            <!-- Bottom -->
+                            <div class="ctrl-bottom">
+                                <div class="progress-row">
+                                    <span id="ctrlCurrentTime" class="time-label">0:00</span>
+                                    <div class="progress-bar" id="progressBar">
+                                        <div class="progress-buffer" id="progressBuffer"></div>
+                                        <div class="progress-fill" id="progressFill"></div>
+                                        <div class="progress-head" id="progressHead"></div>
+                                    </div>
+                                    <span id="ctrlDuration" class="time-label">0:00</span>
+                                </div>
+                                <div class="ctrl-bottom-row">
+                                    <div class="ctrl-bottom-left">
+                                        <button id="ctrlPrev" class="ctrl-btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+                                        <button id="ctrlPlayPause2" class="ctrl-btn" title="Play/Pause"><i class="fas fa-play"></i></button>
+                                        <button id="ctrlNext" class="ctrl-btn" title="Next"><i class="fas fa-step-forward"></i></button>
+                                    </div>
+                                    <div class="ctrl-bottom-right">
+                                        <button id="ctrlSpeedDown" class="ctrl-btn-sm" title="-0.05x">−</button>
+                                        <span id="ctrlSpeedVal" class="speed-val">1.0x</span>
+                                        <button id="ctrlSpeedUp" class="ctrl-btn-sm" title="+0.1x">+</button>
+                                        <button id="ctrlSpeed" class="ctrl-btn" title="Speed"><i class="fas fa-tachometer-alt"></i></button>
+                                        <button id="ctrlQuality" class="ctrl-btn" title="Quality"><i class="fas fa-hdd"></i></button>
+                                        <button id="ctrlPlaylist" class="ctrl-btn" title="Playlist"><i class="fas fa-list"></i></button>
+                                        <button id="ctrlPip" class="ctrl-btn" title="PiP"><i class="fas fa-clone"></i></button>
+                                        <button id="ctrlFullscreen" class="ctrl-btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Speed Menu -->
+                            <div id="speedMenu" class="player-menu hidden">
+                                <div class="menu-item" data-speed="0.7">0.7x</div>
+                                <div class="menu-item" data-speed="1.0">1.0x</div>
+                                <div class="menu-item" data-speed="1.5">1.5x</div>
+                                <div class="menu-item" data-speed="2.0">2.0x</div>
+                                <div class="menu-item" data-speed="2.5">2.5x</div>
+                                <div class="menu-item" data-speed="3.0">3.0x</div>
+                                <div class="menu-item" data-speed="3.5">3.5x</div>
+                                <div class="menu-item" data-speed="4.0">4.0x</div>
+                            </div>
+
+                            <!-- Quality Menu -->
+                            <div id="qualityMenu" class="player-menu hidden">
+                                <div class="menu-item" data-quality="auto">Auto</div>
+                                <div class="menu-item" data-quality="1040">1040p</div>
+                                <div class="menu-item" data-quality="720">720p</div>
+                                <div class="menu-item" data-quality="480">480p</div>
+                                <div class="menu-item" data-quality="360">360p</div>
+                                <div class="menu-item" data-quality="240">240p</div>
+                                <div class="menu-item" data-quality="144">144p</div>
+                            </div>
+
+                            <!-- Playlist Panel -->
+                            <div id="playlistPanel" class="playlist-panel hidden">
+                                <div class="playlist-header">
+                                    <h4>Playlist</h4>
+                                    <button id="playlistClose" class="ctrl-btn"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div id="playlistItems" class="playlist-items"></div>
+                            </div>
+
+                            <!-- Brightness Overlay -->
+                            <div id="brightnessOverlay" class="brightness-overlay"></div>
+                            <!-- Volume Overlay -->
+                            <div id="volumeOverlay" class="volume-overlay">
+                                <div class="volume-bar"><div class="volume-fill" id="volumeFill"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREVIOUS PLAYED / PLAYLIST BELOW PLAYER -->
+                    <div class="playlist-below">
+                        <div class="playlist-below-header">
+                            <h4><i class="fas fa-history"></i> Playlist</h4>
+                            <div class="layout-toggle">
+                                <button id="layoutGrid" class="layout-btn active" title="Grid"><i class="fas fa-th"></i></button>
+                                <button id="layoutList" class="layout-btn" title="List"><i class="fas fa-list"></i></button>
+                            </div>
+                        </div>
+                        <div id="playlistBelow" class="playlist-below-items grid-layout"></div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL: PDF + Video List (Desktop) -->
+                <div class="side-panel">
+                    <div class="side-panel-section">
+                        <h4><i class="fas fa-file-pdf"></i> PDFs</h4>
+                        <div id="pdfList" class="pdf-list"></div>
+                    </div>
+                    <div class="side-panel-section">
+                        <h4><i class="fas fa-video"></i> Videos</h4>
+                        <div id="sideVideoList" class="side-video-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD FILE / LINK VIEW -->
+        <section id="view-add" class="view">
+            <div class="add-layout">
+                <!-- LEFT: File Explorer -->
+                <div class="add-left">
+                    <h3><i class="fas fa-folder-tree"></i> File Explorer</h3>
+                    <div class="explorer-path" id="explorerPath">/</div>
+                    <div class="explorer-actions">
+                        <button id="newFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Folder</button>
+                        <button id="newSubFolderBtn" class="btn-secondary"><i class="fas fa-folder-plus"></i> New Subfolder</button>
+                        <button id="upDirBtn" class="btn-secondary"><i class="fas fa-arrow-up"></i> Up</button>
+                    </div>
+                    <div id="explorerContent" class="explorer-content"></div>
+
+                    <!-- TXT Upload -->
+                    <div class="txt-upload">
+                        <h4><i class="fas fa-file-import"></i> Import from .txt</h4>
+                        <input type="file" id="txtFileInput" accept=".txt" class="file-input"/>
+                        <p class="txt-format-hint">
+                            Format: Subject+Topic+Title+Url / Subject+Title+Url / Topic+Title+Url / Title+Url / Url
+                        </p>
+                    </div>
+
+                    <!-- Direct File Upload -->
+                    <div class="file-upload">
+                        <h4><i class="fas fa-upload"></i> Upload Video / Image</h4>
+                        <input type="file" id="fileInput" accept="video/*,image/*,.mp4,.m3u8,.pdf" class="file-input" multiple/>
+                    </div>
+                </div>
+
+                <!-- RIGHT: URL Fetcher -->
+                <div class="add-right">
+                    <h3><i class="fas fa-link"></i> URL Link Fetcher</h3>
+                    <div class="url-fetcher">
+                        <label>Title / Name:</label>
+                        <input type="text" id="fetchTitle" placeholder="Video Title"/>
+                        <label>URL:</label>
+                        <input type="url" id="fetchUrl" placeholder="https://...m3u8 or .mp4 or .pdf"/>
+                        <label>Folder Location:</label>
+                        <select id="fetchFolder"></select>
+                        <button id="fetchAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+
+                    <!-- Preview Player -->
+                    <div class="url-preview">
+                        <h4>Preview</h4>
+                        <video id="previewPlayer" class="preview-video" controls></video>
+                    </div>
+
+                    <!-- Confirm Modal -->
+                    <div id="confirmModal" class="modal hidden">
+                        <div class="modal-content glass">
+                            <h4><i class="fas fa-exclamation-circle"></i> Confirm Add</h4>
+                            <p>File: <strong id="confirmFileName"></strong></p>
+                            <p>Location: <strong id="confirmFolder"></strong></p>
+                            <div class="modal-folder-select">
+                                <label>Change folder:</label>
+                                <select id="confirmFolderSelect"></select>
+                            </div>
+                            <div class="modal-actions">
+                                <button id="confirmCancel" class="btn-ghost">Cancel</button>
+                                <button id="confirmOk" class="btn-primary">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPLORE VIEW -->
+        <section id="view-explore" class="view">
+            <div class="explore-header">
+                <h3><i class="fas fa-folder-open"></i> Explore</h3>
+                <div class="explore-breadcrumb" id="exploreBreadcrumb"></div>
+                <div class="explore-actions">
+                    <button id="exploreDeleteFolder" class="btn-danger hidden"><i class="fas fa-trash"></i> Delete Folder</button>
+                    <button id="exploreRemoveFile" class="btn-danger hidden"><i class="fas fa-times"></i> Remove File</button>
+                </div>
+            </div>
+            <div id="exploreGrid" class="explore-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- PDF VIEWER MODAL -->
+    <div id="pdfModal" class="modal pdf-modal hidden">
+        <div class="pdf-modal-content">
+            <div class="pdf-header">
+                <button id="pdfBack" class="icon-btn"><i class="fas fa-arrow-left"></i></button>
+                <span id="pdfTitle" class="pdf-title">PDF Viewer</span>
+                <button id="pdfDownload" class="icon-btn"><i class="fas fa-download"></i></button>
+                <button id="pdfClose" class="icon-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <iframe id="pdfFrame" class="pdf-frame"></iframe>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast hidden"></div>
 
 </div>
-<div id="modal" class="modal hidden"><div class="modal-card glass"><div class="toolbar"><h2 id="modalTitle">Confirm</h2><button id="modalClose" class="icon-btn">×</button></div><div id="modalBody"></div></div></div>
-<div id="toast" class="toast glass hidden"></div>
 
-<style id="cleaned-css">
-.theme-radial.open .theme-radial-item:nth-child(4){transform:translate(-8px,76px) scale(1)}
-.theme-radial.open .theme-radial-item:nth-child(5){transform:translate(42px,58px) scale(1)}
-.theme-radial.open .theme-radial-item:nth-child(6){transform:translate(58px,8px) scale(1)}
-.theme-radial.open .theme-radial-item:nth-child(7){transform:translate(42px,-48px) scale(1)}
-.theme-radial.open .theme-radial-item:nth-child(8){transform:translate(-8px,-58px) scale(1)}
-.theme-radial-item:hover{transform:scale(1.12)!important;border-color:color-mix(in srgb,var(--a) 60%,transparent)}
-.theme-radial-item.active{box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 25%,transparent),0 8px 25px #0002}
-
-/* ===== Add / Import Workspace ===== */
-.add-v2{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:18px;align-items:start}
-.add-panel,.preview-panel{padding:22px;border-radius:24px}
-.add-tabs{display:flex;gap:7px;padding:5px;background:color-mix(in srgb,var(--a) 7%,transparent);border:1px solid var(--line);border-radius:16px;margin-bottom:18px}
-.add-tab{flex:1;padding:11px 12px;border-radius:12px;background:transparent;color:var(--muted);font-weight:700}
-.add-tab.active{background:var(--panel2);color:var(--a);box-shadow:0 6px 20px #0001}
-.import-box{padding:18px;border:1px dashed color-mix(in srgb,var(--a) 38%,transparent);border-radius:19px;background:color-mix(in srgb,var(--a) 4%,transparent)}
-.file-pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.file-name{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.folder-picker{max-height:250px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
-.folder-row{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:11px;cursor:pointer}
-.folder-row:hover{background:color-mix(in srgb,var(--a) 9%,transparent)}
-.folder-row.selected{background:color-mix(in srgb,var(--a) 15%,transparent);color:var(--a);font-weight:700}
-.folder-indent{width:18px;flex:none}
-.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.preview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat{padding:11px;border-radius:14px;background:var(--panel);border:1px solid var(--line);text-align:center}
-.stat b{display:block;font-size:18px}.stat small{color:var(--muted)}
-.preview-list{display:grid;gap:9px;max-height:520px;overflow:auto;padding-right:2px}
-.preview-item{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:11px;border:1px solid var(--line);background:var(--panel);border-radius:15px}
-.preview-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--a) 12%,transparent);font-size:19px}
-.preview-item b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.preview-meta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45;word-break:break-word}
-.empty-preview{padding:45px 18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:17px}
-.notice{padding:11px 13px;border-radius:13px;background:color-mix(in srgb,var(--b) 8%,transparent);border:1px solid var(--line);font-size:12px;color:var(--muted)}
-@media(max-width:900px){.add-v2{grid-template-columns:1fr}.theme-radial{right:12px;top:74px}.preview-list{max-height:420px}}
-@media(max-width:520px){.preview-stats{grid-template-columns:1fr 1fr}.add-panel,.preview-panel{padding:15px}}
-
-.side-list b{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.side-list b::after{content:'⌃';font-size:.8rem;opacity:.7}
-.side-list.is-collapsed b::after{content:'⌄'}
-.side-list.is-collapsed>div{display:none!important}
-#playlist.playlist-mini{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:150px;overflow:auto}
-#playlist.playlist-mini .card{padding:8px;min-width:0}
-#playlist.playlist-mini .card h3{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#playlist.playlist-mini .thumb{height:48px}
-#folders.explorer-list .card{position:relative}
-.explorer-breadcrumb{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 14px}
-.explorer-crumb{padding:8px 11px;border-radius:11px;background:var(--panel);border:1px solid var(--line);cursor:pointer}
-.explorer-crumb.active{color:var(--a);font-weight:700}
-.explorer-file{display:flex;align-items:center;gap:12px;min-height:78px}
-.explorer-file-icon{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--a) 12%,transparent);font-size:22px;flex:none}
-.explorer-file-main{min-width:0;flex:1}.explorer-file-main h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.explorer-folder-meta{display:flex;gap:8px;flex-wrap:wrap}
-
-.explorer-select{position:absolute;top:10px;right:10px;z-index:2;width:18px;height:18px}
-.explorer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.explorer-actions .danger{border-color:rgba(255,70,70,.35);color:#d33}
-.explorer-empty{padding:22px;text-align:center}
-.explorer-result{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:14px;margin:7px 0;cursor:pointer}
-.explorer-result:hover{background:color-mix(in srgb,var(--a) 7%,transparent)}
-.folder-tree-v4{max-height:290px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:15px}
-.folder-node-v4{margin:2px 0}
-.folder-node-row-v4{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:10px;cursor:pointer}
-.folder-node-row-v4:hover{background:color-mix(in srgb,var(--a) 8%,transparent)}
-.folder-node-row-v4 .twisty{width:18px;text-align:center;opacity:.7}
-.folder-node-row-v4 .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.folder-node-v4 .children{display:none;margin-left:22px}
-.folder-node-v4.expanded>.children{display:block}
-#folderPickerV2 .folder-node-v4:not(.expanded)>.children{display:none}
-@media(max-width:850px){.player-layout{grid-template-columns:1fr!important}.player-layout>div:first-child,.player-layout>div:nth-child(2){grid-column:1;grid-row:auto;position:static;max-height:none}.player-layout>div:nth-child(2){order:2}.player-layout>div:first-child{order:1}}
-
-
-/* V9 player gesture HUD, top-left unlock/back, fullscreen state, and playlist */
-.p-top{justify-content:flex-start!important;gap:10px}
-.p-top-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
-.p-top-left .p-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.player-top-btn{background:#0009;color:#fff;border:1px solid #fff2;border-radius:11px;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
-.player-top-btn:hover{background:#000d}
-.p-top>.controls{flex:0 0 auto}
-#unlock{left:14px!important;top:14px!important;transform:none!important;z-index:35}
-.gesture-hud-v9{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);min-width:150px;padding:12px 18px;border-radius:16px;background:#000b;color:#fff;text-align:center;font-weight:800;font-size:18px;line-height:1.15;opacity:0;pointer-events:none;z-index:36;transition:opacity .12s,transform .12s;backdrop-filter:blur(12px);border:1px solid #fff2;box-shadow:0 12px 30px #0006}
-.gesture-hud-v9.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.gesture-hud-v9 small{display:block;font-size:11px;font-weight:600;opacity:.75;margin-top:3px}
-#playerPlaylistPanel{height:282px!important;max-height:282px!important}
-#playerPlaylistPanel .pp-list{height:228px!important;max-height:228px!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-width:thin}
-#playerPlaylistPanel .pp-item{min-height:50px}
-#playerPlaylistBtn{margin-left:2px}
-@media(max-width:700px){
-  #playerPlaylistPanel{height:282px!important;max-height:282px!important}
-  #playerPlaylistPanel .pp-list{height:228px!important;max-height:228px!important}
-  .player-top-btn{width:34px;height:34px}
-}
-
-
-/* ===== V14 TOP-RIGHT CONTROL AREA ===== */
-#themeBtn,#themePop,#pieBtn,#pie,.v3-top-controls{display:none!important}
-#v14TopArea{position:relative;display:flex;flex-direction:column;align-items:flex-end;gap:7px;z-index:10050}
-.v14-user-row{display:flex;align-items:center;gap:7px}
-.v14-top-btn{width:42px;height:42px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--text);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px #0001;position:relative;z-index:10070}
-.v14-top-btn:hover{transform:translateY(-1px)}
-.v14-top-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
-.v14-user-btn{display:flex;align-items:center;gap:7px;width:auto;min-width:42px;padding:0 10px;font-size:12px;font-weight:700}
-.v14-user-name{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.v14-settings-btn{width:42px;height:38px;border-radius:12px;font-size:17px}
-.v14-clock{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:700;font-size:13px;line-height:1.1;letter-spacing:.4px;color:var(--text);padding:3px 8px;border-radius:9px;background:var(--panel);border:1px solid var(--line);box-shadow:0 6px 18px #0001}
-.v14-theme-btn{width:44px;height:44px;border-radius:50%;font-size:21px}
- .v14-theme-layer{position:fixed;top:0;right:0;width:220px;height:220px;pointer-events:none;z-index:10020;overflow:visible}
-.v14-theme-blur{position:absolute;inset:0;opacity:0;transition:opacity .18s;pointer-events:none;background:radial-gradient(circle at 100% 0,rgba(255,255,255,.20),rgba(255,255,255,.06) 42%,transparent 70%);clip-path:polygon(100% 0,100% 100%,0 100%);}
-.v14-theme-layer.open{pointer-events:auto}
-.v14-theme-layer.open .v14-theme-blur{opacity:1}
-.v14-theme-choice{position:absolute;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.72);color:#172033;box-shadow:0 10px 26px #0002;display:grid;place-items:center;font-size:22px;cursor:pointer;opacity:0;transform:scale(.5);transition:opacity .18s,transform .18s,box-shadow .18s;z-index:2}
-.v14-theme-layer.open .v14-theme-choice{opacity:1;transform:scale(1)}
-.v14-theme-choice:hover,.v14-theme-choice.active{box-shadow:0 0 0 3px rgba(255,255,255,.35),0 12px 30px #0003;transform:scale(1.06)!important}
-/* Perfect 90° quarter-circle: center is the top-right theme button.
-   Radius is 5px longer than before; all icons stay strictly DOWN + LEFT. */
-.v14-theme-layer::after{content:"";position:absolute;width:330px;height:330px;right:-152px;top:-141px;border:2px solid rgba(255,255,255,.28);border-radius:50%;box-sizing:border-box;pointer-events:none;clip-path:polygon(0 50%,100% 50%,100% 100%,0 100%);opacity:0;transition:opacity .18s;}
-.v14-theme-layer.open::after{opacity:1}
-.v14-theme-choice:nth-of-type(1){right: -2px;top:150px}
-.v14-theme-choice:nth-of-type(2){right: 14px;top:120px}
-.v14-theme-choice:nth-of-type(3){right: 42px;top:95px}
-.v14-theme-choice:nth-of-type(4){right: 75px;top:72px}
-.v14-theme-choice:nth-of-type(5){right: 111px;top:54px}
-.v14-theme-choice:nth-of-type(6){right: 148px;top:42px}
-.v14-theme-choice:nth-of-type(7){right: 174px;top:38px}
-.v14-theme-choice span{display:grid;place-items:center}
-.v14-theme-name{position:fixed;top:12px;right:12px;z-index:10080;padding:7px 10px;border-radius:10px;background:#111d;color:#fff;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .15s}
-.v14-theme-name.show{opacity:1}
-@media(max-width:520px){
- .v14-theme-layer{width:190px;height:190px}
- .v14-theme-choice{width:44px;height:44px}
- .v14-theme-choice:nth-of-type(1){right: -2px;top:150px}.v14-theme-choice:nth-of-type(2){right: 14px;top:120px}.v14-theme-choice:nth-of-type(3){right: 42px;top:95px}.v14-theme-choice:nth-of-type(4){right: 75px;top:72px}.v14-theme-choice:nth-of-type(5){right: 111px;top:54px}.v14-theme-choice:nth-of-type(6){right: 148px;top:42px}.v14-theme-choice:nth-of-type(7){right: 174px;top:38px}
-}
-/* ===== V14 PLAYER CONTROLLER SCALER: panel stays fixed, only controls change visual size ===== */
-#controllerScalerV11{display:none!important}
-#playerControllerScalerV12{display:none!important}
-#playerUiScalerV14{position:absolute;right:12px;top:52px;z-index:38;display:flex;gap:3px;align-items:center;padding:4px;border-radius:10px;background:rgba(0,0,0,.45);border:1px solid #fff2;backdrop-filter:blur(10px)}
-#playerUiScalerV14 button{height:28px;min-width:34px;padding:0 7px;border:1px solid #fff2;border-radius:8px;background:#fff1;color:#fff;font-weight: 700;font-size: 12px;line-height: 1;font-family: inherit;
-cursor:pointer}
-#playerUiScalerV14 button:hover{background:#fff2}
-#playerUiScalerV14 .v14-scale-value{min-width:30px;text-align:center}
-#playerShell .p-bottom .controls.v14-scaled{zoom:1!important;transform:none!important}
-#playerShell .p-bottom .controls.v14-scaled > *{--v14-cscale:1;transform:scale(var(--v14-cscale));transform-origin:center center}
-@media(max-width:700px){#playerUiScalerV14{right:8px;top:48px}#playerUiScalerV14 button{min-width:31px;padding:0 5px}}
-
-
-/* V16: top-right app controls — no standalone Settings button, compact wrapping */
-#v14TopArea{position:fixed!important;top:12px!important;right:12px!important;left:auto!important;z-index:10060!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:5px!important;max-width:calc(100vw - 24px)!important;overflow:visible!important}
-#v14TopArea .v14-user-row{display:flex!important;flex-wrap:wrap!important;justify-content:flex-end!important;gap:4px!important;max-width:100%!important}
-#v14TopArea .v14-settings-btn{display:none!important}
-#v14TopArea .v14-top-btn{flex:0 0 auto!important;width:42px!important;height:42px!important}
-#v14TopArea .v14-user-btn{width:auto!important;min-width:42px!important;max-width:150px!important}
-#v14TopArea .v14-clock{flex:0 0 auto!important;white-space:nowrap!important}
-/* Remove the old diagonal-arrow player control (#scale) permanently. */
-#playerShell #scale{display:none!important}
-/* Keep player scaler fixed in its own compact top-right area; it never scales itself. */
-#playerUiScalerV14{position:absolute!important;right:12px!important;top:52px!important;display:flex!important;flex-wrap:nowrap!important;gap:3px!important;z-index:39!important;white-space:nowrap!important}
-#playerUiScalerV14 button{flex:0 0 auto!important}
-/* Six-row, one-column playlist. More items remain vertically scrollable. */
-#playerPlaylistPanel{height:390px!important;max-height:390px!important;overflow:hidden!important}
-#playerPlaylistPanel .pp-list{height:330px!important;max-height:330px!important;overflow-y:auto!important;overflow-x:hidden!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:50px!important;gap:6px!important;scroll-behavior:smooth!important;overscroll-behavior:contain!important;scrollbar-width:thin!important}
-#playerPlaylistPanel .pp-item{min-height:50px!important;height:50px!important;box-sizing:border-box!important}
-@media(max-width:700px){
-  #v14TopArea{top:8px!important;right:8px!important;max-width:calc(100vw - 16px)!important}
-  #v14TopArea .v14-user-row{gap:3px!important}
-  #v14TopArea .v14-top-btn{width:38px!important;height:38px!important}
-  #v14TopArea .v14-user-btn{max-width:120px!important}
-  #playerPlaylistPanel{height:390px!important;max-height:390px!important;right:8px!important;bottom:62px!important;width:min(290px,calc(100% - 16px))!important}
-}
-
-/* Final theme radial layout: larger quarter-arc with enough spacing for every icon. */
-.v14-theme-layer{
-  width:300px!important;
-  height:300px!important;
-  top:0!important;
-  right:0!important;
-  overflow:hidden!important;
-  transform:none!important;
-  transform-origin:100% 0!important;
-  border-radius:0!important;
-}
-.v14-theme-layer::after{
-  content:""!important;
-  position:absolute!important;
-  left:0!important;
-  top:0!important;
-  width:100%!important;
-  height:100%!important;
-  border:0!important;
-  border-radius:0!important;
-  background:radial-gradient(circle at 100% 0%,transparent 248px,rgba(255,255,255,.34) 249px,rgba(255,255,255,.34) 251px,transparent 252px)!important;
-  clip-path:inset(0)!important;
-  pointer-events:none!important;
-  z-index:0!important;
-}
-.v14-theme-choice{
-  position:absolute!important;
-  width:48px!important;
-  height:48px!important;
-  margin:0!important;
-  z-index:2!important;
-}
-.v14-theme-choice:nth-of-type(1){left:57px!important;top:52px!important}
-.v14-theme-choice:nth-of-type(2){left:70px!important;top:95px!important}
-.v14-theme-choice:nth-of-type(3){left:92px!important;top:134px!important}
-.v14-theme-choice:nth-of-type(4){left:120px!important;top:169px!important}
-.v14-theme-choice:nth-of-type(5){left:155px!important;top:197px!important}
-.v14-theme-choice:nth-of-type(6){left:199px!important;top:220px!important}
-.v14-theme-choice:nth-of-type(7){left:246px!important;top:224px!important}
-@media(max-width:520px){
-  .v14-theme-layer{width:270px!important;height:270px!important}
-  .v14-theme-choice{width:42px!important;height:42px!important}
-  .v14-theme-layer::after{
-    background:radial-gradient(circle at 100% 0%,transparent 223px,rgba(255,255,255,.34) 224px,rgba(255,255,255,.34) 226px,transparent 227px)!important;
-  }
-  .v14-theme-choice:nth-of-type(1){left:50px!important;top:47px!important}
-  .v14-theme-choice:nth-of-type(2){left:62px!important;top:86px!important}
-  .v14-theme-choice:nth-of-type(3){left:82px!important;top:122px!important}
-  .v14-theme-choice:nth-of-type(4){left:107px!important;top:154px!important}
-  .v14-theme-choice:nth-of-type(5){left:139px!important;top:181px!important}
-  .v14-theme-choice:nth-of-type(6){left:179px!important;top:200px!important}
-  .v14-theme-choice:nth-of-type(7){left:221px!important;top:202px!important}
-}
-
-/* Remove the old in-page playlist UI and its toolbar toggle. */
-.player-layout>div:nth-child(2){display:none!important}
-#playlistToggleV4{display:none!important}
-
-/* Bottom-right playlist drawer. */
-#playerPlaylistPanel{position:absolute;right:14px;bottom:64px;width:min(300px,calc(100% - 28px));max-height:calc(100% - 120px);display:none;z-index:40;padding:10px;border-radius:18px;background:rgba(8,10,18,.94);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.12);box-shadow:0 16px 45px rgba(0,0,0,.45);overflow:hidden}
-#playerPlaylistPanel.open{display:block}
-#playerPlaylistPanel .pp-head{display:flex;align-items:center;justify-content:space-between;padding:5px 6px 9px;color:#fff;font-weight:700}
-#playerPlaylistPanel .pp-list{display:grid;grid-template-columns:1fr;grid-auto-rows:minmax(54px,auto);gap:6px;max-height:calc(100% - 40px);overflow-y:auto;padding-right:3px}
-#playerPlaylistPanel .pp-item{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer}
-#playerPlaylistPanel .pp-item.current{outline:2px solid var(--a);background:color-mix(in srgb,var(--a) 18%,transparent)}
-#playerPlaylistPanel .pp-num{width:25px;flex:0 0 25px;text-align:center;opacity:.8;font-size:.8rem}
-#playerPlaylistPanel .pp-thumb{width:72px;height:42px;flex:0 0 72px;border-radius:8px;background:#111827;display:grid;place-items:center;font-size:16px}
-#playerPlaylistPanel .pp-title{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.82rem}
-#playerPlaylistPanel .pp-list::-webkit-scrollbar{width:5px}.pp-list::-webkit-scrollbar-thumb{background:#ffffff35;border-radius:10px}
-#playerPlaylistBtn{order:8}
-@media(max-width:700px){#playerPlaylistPanel{right:8px;bottom:62px;width:min(280px,calc(100% - 16px))}}
-
-
-/* Full-width player with the folder's video playlist on the LEFT. */
-#home .player-layout{display:grid!important;grid-template-columns:minmax(220px,290px) minmax(0,1fr)!important;gap:14px!important;align-items:stretch!important}
-#home .player-layout>div:first-child{grid-column:2!important;min-width:0!important}
-#home .player-layout>div:nth-child(2){grid-column:1!important;grid-row:1!important;min-width:0!important;display:block!important}
-#home .player-layout>div:nth-child(2) .pdf-list{display:none!important}
-#home .player-layout>div:nth-child(2) .side-list{height:100%;min-height:0;display:flex;flex-direction:column}
-#home .player-layout>div:nth-child(2) .side-list>b{display:block;padding:4px 4px 10px}
-#videoList{display:flex!important;flex-direction:column!important;gap:7px!important;overflow-y:auto!important;height:calc(100% - 30px)!important;max-height:calc(100vh - 205px)!important;padding-right:4px!important;scrollbar-width:thin}
-#videoList .list-item{flex:0 0 auto!important}
-#home #playlist{display:none!important}
-/* Remove any extra/old playlist UI from the player content area. */
-#playlistToggleV4,#playlistIconV4{display:none!important}
-/* Quality selector replaces the broken HD button. */
-#quality{display:none!important}
-#qualitySelectV10{height:36px;min-width:76px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:rgba(0,0,0,.42);color:#fff;padding:0 8px;font:inherit;outline:none;cursor:pointer}
-#qualitySelectV10 option{background:#111827;color:#fff}
-#playerPlaylistPanel{max-height:360px!important;height:360px!important}
-#playerPlaylistPanel .pp-list{height:305px!important;max-height:305px!important;overflow-y:auto!important}
-@media(max-width:850px){
-  #home .player-layout{grid-template-columns:1fr!important}
-  #home .player-layout>div:first-child{grid-column:1!important;grid-row:1!important}
-  #home .player-layout>div:nth-child(2){grid-column:1!important;grid-row:2!important}
-  #videoList{height:300px!important;max-height:300px!important}
-}
-
-
-/* Final UI polish: settings content + Explorer bulk actions */
-#settings{padding:0!important}
-#settings .hero{margin:0 0 12px!important}
-#settings .settings-grid{gap:18px!important;align-items:stretch!important}
-#settings .settings-card{box-sizing:border-box!important;padding:20px!important;border:5px solid var(--line)!important;border-radius:18px!important;min-width:0!important}
-#settings .settings-card h3{margin:0 0 4px!important;line-height:1.3!important}
-#settings .settings-note{margin:0 0 10px!important;line-height:1.00!important}
-#settings .form{gap:12px!important}
-#settings .field{margin:0!important}
-#settings input,#settings select,#settings textarea{box-sizing:border-box;width:100%;min-height:42px}
-#settings .btn{margin:50!important}
-.explorer-bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.explorer-card-select{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.explorer-card-select input{width:18px;height:18px}
-.explorer-file .explorer-card-select{margin:0}
-.explorer-actions .danger,.explorer-bulk .danger{border-color:rgba(255,70,70,.35);color:#d33}
-/* Targeted Explorer + Settings architecture polish — keeps player/theme systems untouched. */
-#settings{width:100%;box-sizing:border-box}
-#settings .hero{box-sizing:border-box;padding:22px!important;border:1px solid var(--line)!important}
-#settings .settings-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:start!important}
-#settings .settings-card{height:100%;overflow:hidden}
-#settings .permission-list{display:flex;flex-direction:column;gap:94px;max-height:460px;overflow:auto;padding:8px!important;border:1px solid var(--line);border-radius:14px;background:rgba(127,127,127,.04)}
-.permission-tree-node{display:block}
-.permission-tree-row{display:flex;align-items:center;gap:5px;min-height:8px;padding:2px 690px;border-radius:210px;box-sizing:border-box}
-.permission-tree-row:hover{background:rgba(127,127,127,.08)}
-.permission-tree-toggle{width:98px!important;min-width:8px;height:28px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;display:grid;place-items:center;cursor:pointer}
-.permission-tree-toggle.empty{visibility:hidden}
-.permission-tree-children{margin-left:26px;border-left:6px solid var(--line);padding-left:8px}
-.permission-tree-label{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
-.permission-tree-label span{overflow:visible;text-overflow:ellipsis;white-space:nowrap}
-.explorer-list{width:100%;box-sizing:border-box}
-.explorer-breadcrumb{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
-.explorer-crumb{border:0;background:transparent;padding:7px 9px;border-radius:8px;color:inherit;cursor:pointer}
-.explorer-crumb.active{background:rgba(127,127,127,.12);font-weight:700}
-.explorer-section-label{font-weight:700;margin:16px 0 9px}
-.explorer-folder-grid,.explorer-file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.explorer-folder-card{display:flex;flex-direction:column;min-height:158px;padding:16px!important;box-sizing:border-box;overflow:hidden}
-.explorer-folder-head{display:flex;align-items:flex-start;gap:10px;min-width:0}
-.explorer-folder-head .folder-icon{font-size:30px;line-height:1}
-.explorer-folder-title{min-width:0;flex:1}
-.explorer-folder-title h3{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.explorer-folder-meta{margin-top:5px}
-.explorer-folder-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
-.explorer-file-card{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;min-width:0;padding:13px!important;box-sizing:border-box}
-.explorer-file-main{min-width:0}
-.explorer-file-main h3{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.explorer-empty{padding:28px;text-align:center;border:1px dashed var(--line)}
-/* ===== FINAL EXPLORER FIX ===== */
-#explore{width:100%;min-width:0}
-#explore .hero{margin-bottom:16px}
-#explore>.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
-#explore .search{min-width:240px;flex:1 1 320px}
-.explorer-list{width:100%;min-width:0;display:block}
-.explorer-breadcrumb{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:15px;background:var(--panel);box-shadow:0 8px 24px #0000000a}
-.explorer-breadcrumb-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
-.explorer-back{padding:8px 11px!important;white-space:nowrap}
-.explorer-crumb{border:0!important;background:transparent!important;padding:8px 10px!important;border-radius:9px!important;color:var(--text)!important;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.explorer-crumb:hover,.explorer-crumb.active{background:color-mix(in srgb,var(--a) 12%,transparent)!important;color:var(--a)!important}
-.explorer-path-count{white-space:nowrap}
-.explorer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-.explorer-section{margin:0 0 20px}
-.explorer-section-head{display:flex;align-items:center;gap:8px;margin:0 0 9px}
-.explorer-section-head h3{margin:0;font-size:14px}
-.explorer-folder-grid,.explorer-file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:14px;align-items:stretch}
-.explorer-folder-card{position:relative;display:flex;flex-direction:column;min-width:0;min-height:165px;padding:16px!important;border-radius:18px;overflow:hidden}
-.explorer-folder-head{display:flex;align-items:flex-start;gap:10px;min-width:0;padding-right:2px}
-.explorer-folder-title{min-width:0;flex:1}
-.explorer-folder-title h3,.explorer-file-main h3{margin:0;font-size:15px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.explorer-folder-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px}
-.explorer-folder-card .folder-icon{width:54px;height:54px;flex:0 0 54px;border-radius:14px;font-size:28px}
-.explorer-check{display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer}
-.explorer-check input{width:18px;height:18px;margin:0;accent-color:var(--a);cursor:pointer}
-.explorer-folder-head>.explorer-check{position:absolute;top:12px;right:12px;z-index:2}
-.explorer-folder-head>.folder-icon{margin-right:2px}
-.explorer-folder-actions,.explorer-file-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:15px}
-.explorer-folder-actions .btn,.explorer-file-actions .btn{padding:9px 11px;font-size:12px}
-.explorer-file-card{position:relative;display:grid;grid-template-columns:auto 52px minmax(0,1fr);align-items:center;gap:11px;min-width:0;min-height:92px;padding:13px!important;border-radius:17px;overflow:hidden}
-.explorer-file-card>.explorer-check{align-self:start;padding-top:3px}
-.explorer-file-icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--a) 11%,transparent);font-size:22px}
-.explorer-file-main{min-width:0;align-self:center}
-.explorer-file-main .muted{margin-top:4px;font-size:12px}
-.explorer-file-actions{grid-column:1/-1;padding-top:0;margin-top:2px}
-.explorer-empty{padding:48px 20px;text-align:center;border:1px dashed var(--line);border-radius:18px}
-.explorer-empty-icon{font-size:40px;margin-bottom:6px}
-.explorer-empty h3{margin:4px 0}
-@media(max-width:850px){.explorer-breadcrumb{align-items:flex-start;flex-direction:column}.explorer-path-count{white-space:normal}.explorer-folder-grid,.explorer-file-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr))}}
-@media(max-width:560px){#explore .search{min-width:100%}.explorer-folder-grid,.explorer-file-grid{grid-template-columns:1fr}.explorer-file-card{grid-template-columns:auto 46px minmax(0,1fr)}.explorer-file-icon{width:46px;height:46px}.explorer-file-actions{grid-column:1/-1}.explorer-toolbar{align-items:flex-start}}
-</style>
-<script id="clean-core-js">
-(()=>{
-  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-  const KEY='studyPremiumLearningV2';
-  const themes=['light','dark','ocean','forest','rose','lavender','sunset'];
-  const speeds=[.7,1,1.5,2,2.5,3,3.2,3.5,4];
-  let state=JSON.parse(localStorage.getItem(KEY)||'null')||{user:null,theme:'light',folders:[{id:'root',name:'My Library',kind:'folder',items:[]}],currentFolder:'root',activePage:'home',currentIndex:-1,speed:1,aspect:'contain',loop:false,locked:false,settings:{}};
-  let selectedRole='guest', hls=null, pendingRows=[], pendingFileName='';
-
-  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
-  function normalizeFolders(){
-    const fix=(list,parentId=null)=>{if(!Array.isArray(list))return;list.forEach((x,i)=>{if(!x||typeof x!=='object')return;if(isFolder(x)){x.kind='folder';delete x.type;if(!x.id)x.id=parentId==='root'?'folder-'+Date.now()+'-'+i:crypto.randomUUID();if(!Array.isArray(x.items))x.items=[];fix(x.items,String(x.id));}else if(!x.id)x.id=crypto.randomUUID();});};
-    if(!Array.isArray(state.folders)||!state.folders.length)state.folders=[{id:'root',name:'My Library',kind:'folder',items:[]}];
-    state.folders.forEach((x,i)=>{if(!x.id)x.id=i===0?'root':crypto.randomUUID();x.kind='folder';if(!x.name)x.name=i===0?'My Library':'Folder';if(!Array.isArray(x.items))x.items=[];fix(x.items,String(x.id));});
-    const root=state.folders.find(x=>String(x.id)==='root')||state.folders[0];if(root&&String(root.id)!=='root')root.id='root';
-    if(!findFolder(state.currentFolder))state.currentFolder='root';
-    state.activePage=['home','explore','add','settings'].includes(state.activePage)?state.activePage:'home';
-    save();
-  }
-  const toast=t=>{const x=$('#toast');if(!x)return;x.textContent=t;x.classList.remove('hidden');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>x.classList.add('hidden'),2200)};
-  const isFolder=x=>!!(x&&((x.kind==='folder')||(x.type==='folder')||(Array.isArray(x.items)&&('name' in x))));
-  const folderChildren=f=>(f?.items||[]).filter(isFolder);
-  const walkFolders=(cb)=>{const walk=(f,d=0,parent=null)=>{if(!f)return;cb(f,d,parent);folderChildren(f).forEach(x=>walk(x,d+1,f.id))};(state.folders||[]).forEach(f=>walk(f,0,null))};
-  const findFolder=id=>{let hit=null;walkFolders(f=>{if(String(f.id)===String(id))hit=f});return hit};
-  const folder=()=>findFolder(state.currentFolder)||state.folders?.[0];
-  const allItems=(f,out=[])=>{(f?.items||[]).forEach(i=>isFolder(i)?allItems(i,out):out.push({...i,folderId:f.id}));return out};
-  const flatVideo=f=>allItems(f,[]).filter(i=>String(i.kind).toLowerCase()==='video'||/\.(m3u8|mp4)(?:$|[?#])/i.test(i.url||''));
-  const flatPdf=f=>allItems(f,[]).filter(i=>String(i.kind).toLowerCase()==='pdf'||/\.pdf(?:$|[?#])/i.test(i.url||''));
-  const childFolder=(parent,name)=>{if(!parent)return null;const n=String(name||'').trim();if(!n)return parent;parent.items=parent.items||[];let f=parent.items.find(i=>isFolder(i)&&String(i.name).trim().toLowerCase()===n.toLowerCase());if(!f){f={id:crypto.randomUUID(),name:n,kind:'folder',items:[]};parent.items.push(f)}return f};
-  const folderOptionsHtml=()=>{let out='';walkFolders((f,d)=>{out+=`<div class="folder-row" data-folder-choice="${esc(f.id)}" style="padding-left:${10+d*24}px"><span>📁</span><span>${esc(f.name)}</span></div>`});return out||'<div class="muted" style="padding:15px">No folders yet.</div>'};
-  const selectedFolderName=id=>findFolder(id)?.name||'My Library';
-
-  function setTheme(t){state.theme=t;document.documentElement.dataset.theme=t==='light'?'':t;save();syncTheme();}
-  function syncTheme(){const layer=$('#v14ThemeLayer');const theme=$('#v14Theme');if(theme)theme.textContent=({light:'☀️',dark:'🌙',ocean:'🌊',forest:'🌲',rose:'🌹',lavender:'🪻',sunset:'🌅'})[state.theme]||'◐';layer?.querySelectorAll('[data-theme-v14]').forEach(b=>b.classList.toggle('active',b.dataset.themeV14===state.theme));}
-
-  function ensureSettings(){
-    state.settings=state.settings||{};
-    state.settings.adminUsername=state.settings.adminUsername||'admin';
-    state.settings.adminPassword=state.settings.adminPassword||'admin123';
-    if(!Array.isArray(state.settings.users)){
-      state.settings.users=[{id:'guest-default',username:state.settings.guestUsername||'guest',password:state.settings.guestPassword||'guest123',role:'guest'}];
-    }
-    state.settings.users=state.settings.users.filter(u=>u&&u.username&&u.password&&u.role==='guest');
-    if(!state.settings.users.length)state.settings.users=[{id:'guest-default',username:'guest',password:'guest123',role:'guest'}];
-  }
-  function guestAllowed(id){
-    if(state.user?.role==='admin')return true;
-    const target=findFolder(id);if(!target)return false;
-    const allowed=state.settings.guestFolders||[];
-    const isDescendant=(root,targetId)=>root.id===targetId||folderChildren(root).some(ch=>isDescendant(ch,targetId));
-    return allowed.some(a=>{const root=findFolder(a);return root&&isDescendant(root,id)});
-  }
-  function ensureGuestFolder(){
-    if(state.user?.role!=='guest')return;
-    const first=(state.settings.guestFolders||[]).map(findFolder).find(Boolean);
-    if(first){state.currentFolder=first.id;return}
-    const root=findFolder('root')||state.folders?.[0];if(root){state.settings.guestFolders=[root.id];state.currentFolder=root.id;save()}
-  }
-
-  function findParentFolder(id){
-    let parent=null;
-    walkFolders((f)=>{if(folderChildren(f).some(x=>String(x.id)===String(id)))parent=f;});
-    return parent;
-  }
-
-  function createFolder(parentId=null){
-    if(state.user?.role!=='admin')return toast('Admin only');
-    const parent=findFolder(parentId||state.currentFolder)||findFolder('root')||state.folders[0];
-    if(!parent)return toast('Parent folder not found');
-    const name=prompt(`Create folder inside “${parent.name}”`);
-    const clean=String(name||'').trim();
-    if(!clean)return;
-    const exists=folderChildren(parent).some(x=>String(x.name).trim().toLowerCase()===clean.toLowerCase());
-    if(exists)return toast('A folder with that name already exists here');
-    const f={id:crypto.randomUUID(),name:clean,kind:'folder',items:[]};
-    parent.items=parent.items||[];parent.items.push(f);
-    state.currentFolder=f.id;state.activePage='explore';save();
-    renderFolders();renderHome();fillFolderSelect();
-    toast(`Folder “${clean}” created`);
-  }
-
-  function renderFolders(){
-    const wrap=$('#folders');if(!wrap)return;
-    const q=($('#search')?.value||'').trim().toLowerCase();
-    let current=findFolder(state.currentFolder)||findFolder('root')||state.folders?.[0];
-    if(!current)return;
-    if(state.user?.role==='guest'&&!guestAllowed(current.id)){current=findFolder('root')||state.folders[0];state.currentFolder=current.id;save();}
-
-    const crumbs=[];
-    const buildCrumb=f=>{if(!f)return;const p=findParentFolder(f.id);if(p)buildCrumb(p);crumbs.push(f)};
-    buildCrumb(current);
-
-    const directFolders=folderChildren(current).filter(f=>state.user?.role!=='guest'||guestAllowed(f.id));
-    const directFiles=(current.items||[]).filter(i=>!isFolder(i));
-    const filteredFolders=directFolders.filter(f=>!q||String(f.name||'').toLowerCase().includes(q));
-    const filteredFiles=directFiles.filter(i=>!q||String(i.title||'').toLowerCase().includes(q));
-    const canBack=!!findParentFolder(current.id);
-    const totalSelectable=filteredFolders.filter(f=>String(f.id)!=='root').length+filteredFiles.length;
-
-    const crumbHtml=`<div class="explorer-breadcrumb"><div class="explorer-breadcrumb-left">${canBack?'':''}${crumbs.map((f,i)=>`<button class="explorer-crumb ${i===crumbs.length-1?'active':''}" type="button" data-crumb="${esc(f.id)}">📁 ${esc(f.name)}</button>${i<crumbs.length-1?'<span class="muted">›</span>':''}`).join('')}</div><span class="muted explorer-path-count">${filteredFolders.length} folder${filteredFolders.length===1?'':'s'} · ${filteredFiles.length} file${filteredFiles.length===1?'':'s'}</span></div>`;
-
-    const folderHtml=filteredFolders.map(f=>{
-      const files=(f.items||[]).filter(i=>!isFolder(i)).length,subs=folderChildren(f).length;
-      return `<article class="card glass explorer-folder-card" data-exp-row="folder:${esc(f.id)}">
-        <div class="explorer-folder-head"><label class="explorer-check"><input type="checkbox" data-exp-select="folder:${esc(f.id)}" ${f.id==='root'?'disabled':''}><span></span></label><div class="folder-icon">📁</div><div class="explorer-folder-title"><h3 title="${esc(f.name)}">${esc(f.name)}</h3><div class="muted explorer-folder-meta"><span>${files} file${files===1?'':'s'}</span><span>·</span><span>${subs} subfolder${subs===1?'':'s'}</span></div></div></div>
-        <div class="explorer-folder-actions"><button class="btn secondary" type="button" data-open-folder="${esc(f.id)}">Open</button>${state.user?.role==='admin'&&f.id!=='root'?`<button class="btn secondary danger" type="button" data-delete-folder="${esc(f.id)}">🗑 Delete</button>`:''}</div>
-      </article>`;
-    }).join('');
-
-    const fileHtml=filteredFiles.map(i=>{const isPdf=String(i.kind).toLowerCase()==='pdf'||/\.pdf(?:$|[?#])/i.test(i.url||'');return `<article class="card glass explorer-file-card" data-exp-row="file:${esc(i.id)}"><label class="explorer-check"><input type="checkbox" data-exp-select="file:${esc(i.id)}"><span></span></label><div class="explorer-file-icon">${isPdf?'📄':'▶️'}</div><div class="explorer-file-main"><h3 title="${esc(i.title||'Untitled')}">${esc(i.title||'Untitled')}</h3><div class="muted">${isPdf?'PDF document':'Video file'}</div></div><div class="explorer-file-actions"><button class="btn secondary" type="button" data-open-file="${esc(i.id)}">${isPdf?'Open':'Play'}</button>${state.user?.role==='admin'?`<button class="btn secondary danger" type="button" data-delete-file="${esc(i.id)}">🗑 Delete</button>`:''}</div></article>`}).join('');
-
-    const empty=(!folderHtml&&!fileHtml)?`<div class="glass explorer-empty"><div class="explorer-empty-icon">📂</div><h3>${q?'No matches found':'This folder is empty'}</h3><p class="muted">${q?'Try another search term.':'Create a folder or add files to this location.'}</p>${state.user?.role==='admin'?'<button class="btn" type="button" data-create-folder>＋ Create folder</button>':''}</div>`:'';
-
-    wrap.classList.add('explorer-list');
-    wrap.innerHTML=crumbHtml+toolbar+(folderHtml?`<div class="explorer-section"><div class="explorer-section-head"><h3>Folders</h3><span class="muted">${filteredFolders.length}</span></div><div class="explorer-folder-grid">${folderHtml}</div></div>`:'')+(fileHtml?`<div class="explorer-section"><div class="explorer-section-head"><h3>Files</h3><span class="muted">${filteredFiles.length}</span></div><div class="explorer-file-grid">${fileHtml}</div></div>`:'')+empty;
-
-    wrap.onclick=e=>{
-      const target=e.target.closest('button');if(!target||!wrap.contains(target))return;
-      if(target.matches('[data-open-folder]'))return openFolder(target.dataset.openFolder);
-      if(target.matches('[data-crumb]'))return openFolder(target.dataset.crumb);
-      if(target.matches('[data-explorer-back]')){const p=findParentFolder(current.id);if(p)return openFolder(p.id);}
-      if(target.matches('[data-create-folder]'))return createFolder(current.id);
-      if(target.matches('[data-open-file]')){const item=(current.items||[]).find(i=>String(i.id)===String(target.dataset.openFile));if(!item)return;if(String(item.kind).toLowerCase()==='pdf'||/\.pdf(?:$|[?#])/i.test(item.url||''))return window.open(item.url,'_blank','noopener');return playItem(item.id,{autoplay:true,pip:true})}
-      if(target.matches('[data-delete-folder]')){e.preventDefault();e.stopPropagation();return deleteFolder(target.dataset.deleteFolder)}
-      if(target.matches('[data-delete-file]')){e.preventDefault();e.stopPropagation();return deleteFile(current.id,target.dataset.deleteFile)}
-    };
-
-  }
-
-  function removeFolderById(id){
-    id=String(id);if(id==='root')return false;
-    const removeFrom=list=>{
-      if(!Array.isArray(list))return false;
-      const index=list.findIndex(item=>isFolder(item)&&String(item.id)===id);
-      if(index>=0){list.splice(index,1);return true;}
-      for(const item of list){if(isFolder(item)&&removeFrom(item.items))return true;}
-      return false;
-    };
-    return removeFrom(state.folders||[]);
-  }
-
-  function removeFileById(folderId,id){
-    const parent=findFolder(folderId);if(!parent||!Array.isArray(parent.items))return false;
-    const index=parent.items.findIndex(item=>!isFolder(item)&&String(item.id)===String(id));
-    if(index<0)return false;parent.items.splice(index,1);return true;
-  }
-
-  function refreshAfterMutation(){
-    normalizeFolders();
-    if(!findFolder(state.currentFolder))state.currentFolder='root';
-    save();renderFolders();renderHome();fillFolderSelect();
-    if(state.user?.role==='admin'&&$('#settings')?.classList.contains('active'))mountSettings();
-  }
-
-  function deleteFolder(id){
-    if(state.user?.role!=='admin')return toast('Admin only');
-    id=String(id);if(id==='root')return toast('The root folder cannot be deleted');
-    const target=findFolder(id);if(!target)return toast('Folder not found');
-    const parent=findParentFolder(id);
-    const deletingCurrent=String(state.currentFolder)===id;
-    const deletingCurrentDesc=!!(deletingCurrent||(()=>{const cur=findFolder(state.currentFolder);const inside=(root,targetId)=>String(root.id)===String(targetId)||folderChildren(root).some(ch=>inside(ch,targetId));return inside(target,state.currentFolder)})());
-    if(!confirm(`Delete “${target.name}” and everything inside it? This cannot be undone.`))return;
-    if(!removeFolderById(id))return toast('Folder could not be deleted. Please refresh and try again.');
-    if(deletingCurrentDesc)state.currentFolder=parent?.id||'root';
-    state.currentIndex=-1;refreshAfterMutation();toast(`Successfully Done ☑️ — “${target.name}” deleted`);
-  }
-
-  function deleteFile(folderId,id){
-    if(state.user?.role!=='admin') return toast('Admin only');
-    const parent=findFolder(folderId); if(!parent) return toast('Folder not found');
-    const item=(parent.items||[]).find(x=>!isFolder(x)&&String(x.id)===String(id));
-    if(!item) return toast('File not found');
-    if(!confirm(`Delete “${item.title||'this file'}”?`)) return;
-    if(!removeFileById(folderId,id)) return toast('File could not be deleted');
-    refreshAfterMutation(); toast('Successfully Done ☑️ — File deleted');
-  }
-
-  function renderHome(){
-    const f=folder();if(!f)return;$('#folderNow').textContent=f.name;
-    const vids=flatVideo(f), pdfs=flatPdf(f), current=vids[state.currentIndex];
-    if(state.currentIndex>=vids.length)state.currentIndex=-1;
-    const old=$('#playlist');if(old)old.remove();
-    const title=$('#homePlayerTitle');if(title)title.querySelector('span').textContent=current?.title||'Choose a video from your library';
-    renderFinalPlaylist();
-  }
-  function nav(page){
-    if(!['home','explore','add','settings'].includes(page))page='home';
-    if(state.user?.role==='guest'&&(page==='add'||page==='settings')){toast('This section is available to Admin only');return}
-    state.activePage=page;save();
-    $$('.page').forEach(p=>p.classList.toggle('active',p.id===page));$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-    if(page==='explore')renderFolders();
-    if(page==='home'){const shell=$('#playerShell');if(shell){shell.classList.remove('lock');state.locked=false;const lock=$('#playerLockV9');if(lock){lock.textContent='🔒';lock.title='Lock controls'}}renderHome();}
-    if(page==='add')mountAdd();
-    if(page==='settings')mountSettings();
-    $('#sidebar')?.classList.remove('mobile-open');
-  }
-  function openFolder(id){const target=findFolder(id);if(!target)return toast('Folder not found');if(state.user?.role==='guest'&&!guestAllowed(id)){toast('This folder is not available to Guest');return}state.currentFolder=String(id);state.currentIndex=-1;state.activePage='explore';save();nav('explore')}
-  function openApp(){
-    $('#login')?.classList.add('hidden');$('#app')?.classList.remove('hidden');document.body.classList.toggle('is-admin',state.user?.role==='admin');
-    $('#userName').textContent=state.user?.name||'Guest';$('#userRole').textContent=state.user?.role==='admin'?'Admin':'Guest';$('#avatar').textContent=(state.user?.name||'G')[0].toUpperCase();
-    ensureGuestFolder();applyRoleUI();fillFolderSelect();
-    const page=state.user?.role==='guest'&&['add','settings'].includes(state.activePage)?'home':(state.activePage||'home');
-    nav(page);
-    if(state.user?.role==='admin')mountSettings();
-  }
-  function showLogin(){$('#app')?.classList.add('hidden');$('#login')?.classList.remove('hidden');const admin=selectedRole==='admin';$('#passwordField').style.display='grid';$('#password').placeholder=admin?'Admin password':'Guest password'}
-  function applyRoleUI(){$$('.admin-only').forEach(el=>el.style.display=state.user?.role==='admin'?'':'none');if(state.user?.role!=='admin'&&$('#settings')?.classList.contains('active'))nav('home');}
-
-  function classifyUrl(url){const u=String(url||'').split(/[?#]/)[0].toLowerCase();if(/\.(m3u8|mp4)$/.test(u)||/(?:master|playlist-vod)\.m3u8$/.test(u))return 'video';if(/\.pdf$/.test(u))return 'pdf';return 'other'}
-  function pickUrl(o){if(!o||typeof o!=='object')return '';for(const k of ['Url','URL','url','Link','link','Href','href','source','src'])if(typeof o[k]==='string'&&/^https?:\/\//i.test(o[k]))return o[k].trim();return ''}
-  function pick(o,keys){for(const k of keys)if(o?.[k]!=null&&String(o[k]).trim())return String(o[k]).trim();return ''}
-  function dedupeRows(rows){const seen=new Set();return rows.filter(r=>{const k=[r.url,r.title,r.subject,r.topic].join('|');if(seen.has(k))return false;seen.add(k);return true})}
-  function parseJson(text){let data;try{data=JSON.parse(text)}catch{throw new Error('Invalid JSON file')}const out=[];const walk=(x,ctx={})=>{if(Array.isArray(x)){x.forEach(v=>walk(v,ctx));return}if(!x||typeof x!=='object')return;const url=pickUrl(x),batch=pick(x,['Batch','batch'])||ctx.batch||'',subject=pick(x,['Subject','subject'])||ctx.subject||'',topic=pick(x,['Topic','topic'])||ctx.topic||'',title=pick(x,['Title','title','Name','name'])||'Imported resource';if(url)out.push({url,title,batch,subject,topic,type:classifyUrl(url)});Object.entries(x).forEach(([k,v])=>{if(v&&typeof v==='object'&&!['items','data','records'].includes(k)){const next={...ctx};walk(v,next)}})};walk(data);return dedupeRows(out)}
-  function parseTxt(text){    const out=[],    lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);    let batch='',subject='',topic='';    for(let raw of lines){let line=raw.replace(/^\s*[-•]\s*/,'').trim(),m=line.match(/^Batch\s*:\s*(.*)$/i);if(m){    batch=m[1].trim();    subject='';    topic='';continue;}m=line.match(/^Subject\s*:\s*(.*)$/i); line=raw.replace(/^\s*[-•]\s*/,'').trim(),m=line.match(/^Subject\s*:\s*(.*)$/i);if(m){subject=m[1].trim();topic='';continue}m=line.match(/^Topic\s*:\s*(.*)$/i);if(m){topic=m[1].trim();continue}m=line.match(/^Title\s*:\s*(.*?)\s*(?:-\s*)?(?:Url|URL)\s*:\s*(https?:\/\/\S+)$/i);if(m){out.push({batch,subject,topic,title:m[1].trim()||'Imported resource',url:m[2].trim(),type:classifyUrl(m[2])});continue}const um=line.match(/https?:\/\/\S+/i);if(!um)continue;const url=um[0].replace(/[),.;]+$/,'');const before=line.slice(0,line.indexOf(url)).replace(/[|,;]+$/,'').trim();const parts=before.split(/\s*(?:\||\+|;|,)\s*/).map(x=>x.trim()).filter(Boolean);let title='Imported resource',s=subject,t=topic;if(parts.length>=3){s=parts[0];t=parts[1];title=parts.slice(2).join(' ')}else if(parts.length===2){title=parts[0];t=parts[1]}else if(parts.length===1)title=parts[0];out.push({batch,subject:s,topic:t,title,url,type:classifyUrl(url)})}return dedupeRows(out)}
-
-  function fillFolderSelect(){const sel=$('#saveFolder');if(sel)sel.innerHTML=(state.folders||[]).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('')}
-  function addItem(url,title,subject='',topic='',folderId=null){if(!url)return;let f=folderId?findFolder(folderId):null;if(!f){f=findFolder(subject.trim())||state.folders?.[0];if(subject.trim()){f=state.folders.find(x=>x.name.toLowerCase()===subject.trim().toLowerCase())||f;if(f.name.toLowerCase()!==subject.trim().toLowerCase())f=childFolder(state.folders[0],subject)}}if(topic.trim())f=childFolder(f,topic);f.items=f.items||[];f.items.push({id:crypto.randomUUID(),title:title||url.split('/').pop(),url,kind:classifyUrl(url)==='pdf'?'pdf':'video'});state.currentFolder=f.id;save();renderFolders();renderHome();fillFolderSelect()}
-
-  function mountAdd(){const page=$('#add');if(!page)return;page.innerHTML=`<div class="hero glass"><div class="muted">LIBRARY IMPORT</div><h1>Add File / Link</h1><p class="muted">Import TXT / JSON manifests, choose the destination folder, preview everything, then add it to your library.</p></div><div class="add-v2"><div class="add-panel glass"><div class="add-tabs"><button class="add-tab active" data-add-tab="file">📄 Add Text / JSON File</button><button class="add-tab" data-add-tab="link">🔗 Add File via Link</button></div><div id="addTabFile" class="import-box"><div class="field"><label><b>Select TXT / JSON file</b></label><div class="file-pick"><input id="manifestFile" type="file" accept=".txt,.json,text/plain,application/json"><span id="manifestFileName" class="file-name">No file selected</span></div><small class="muted">Supports TXT and JSON manifests. The file is parsed locally in your browser.</small></div></div><div id="addTabLink" class="import-box hidden"><div class="field"><label><b>TXT / JSON file URL</b></label><div style="display:flex;gap:8px"><input id="manifestUrl" style="flex:1" placeholder="https://example.com/library.json"><button id="fetchManifest" class="btn">Fetch</button></div><small class="muted">The remote server must allow browser CORS requests.</small></div></div><div class="field" style="margin-top:18px"><label><b>Add in folder</b></label><div id="folderPicker" class="folder-picker">${folderOptionsHtml()}</div><div style="display:flex;gap:8px;margin-top:9px"><button id="addNewFolder" class="btn secondary">＋ Create Folder</button><button id="newSubfolder" class="btn secondary">↳ Create Subfolder</button><span id="destination" class="muted" style="display:flex;align-items:center">Destination: My Library</span></div></div><div class="notice" style="margin-top:14px">If Subject and Topic are present in the manifest, they will automatically become subfolders inside the selected destination.</div><button id="confirmImport" class="btn" style="width:100%;margin-top:16px" disabled>✓ Confirm & Add Previewed Items</button><button id="clearImport" class="btn secondary" style="width:100%;margin-top:8px" disabled>Clear Preview</button></div><div class="preview-panel glass"><div class="preview-head"><div><b>Live Preview</b><div class="muted">Parsed content before it is added</div></div><span id="previewCount" class="pill-btn">0 items</span></div><div class="preview-stats"><div class="stat"><b id="pvVideo">0</b><small>Videos</small></div><div class="stat"><b id="pvPdf">0</b><small>PDFs</small></div><div class="stat"><b id="pvOther">0</b><small>Other</small></div></div><div id="previewList" class="preview-list"><div class="empty-preview">Choose a TXT/JSON file or fetch one by link.</div></div></div></div>`;setupAdd()}
-  function setupAdd(){
-    $$('[data-add-tab]').forEach(b=>b.onclick=()=>{$$('[data-add-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#addTabFile').classList.toggle('hidden',b.dataset.addTab!=='file');$('#addTabLink').classList.toggle('hidden',b.dataset.addTab!=='link')});
-    const picker=$('#folderPicker');let selected=state._importFolder||state.currentFolder||'root';
-    const selectFolder=id=>{state._importFolder=id;save();picker.querySelectorAll('[data-folder-choice]').forEach(x=>x.classList.toggle('selected',x.dataset.folderChoice===String(id)));$('#destination').textContent='Destination: '+selectedFolderName(id)};
-    picker.querySelectorAll('[data-folder-choice]').forEach(x=>x.onclick=()=>selectFolder(x.dataset.folderChoice));selectFolder(selected);
-    const renderPreview=()=>{const counts={video:0,pdf:0,other:0};pendingRows.forEach(x=>counts[x.type||'other']++);$('#previewCount').textContent=`${pendingRows.length} item${pendingRows.length===1?'':'s'}`;$('#pvVideo').textContent=counts.video;$('#pvPdf').textContent=counts.pdf;$('#pvOther').textContent=counts.other;$('#confirmImport').disabled=!pendingRows.length;$('#clearImport').disabled=!pendingRows.length;$('#previewList').innerHTML=pendingRows.length?pendingRows.map((x,i)=>`<div class="preview-item"><div class="preview-icon">${x.type==='video'?'▶':x.type==='pdf'?'PDF':'↗'}</div><div><b>${i+1}. ${esc(x.title||'Imported resource')}</b><div class="preview-meta">${esc([x.subject,x.topic,x.url].filter(Boolean).join('  •  '))}</div></div></div>`).join(''):'<div class="empty-preview">No items to preview.</div>'};
-    const rebuild=()=>{picker.innerHTML=folderOptionsHtml();picker.querySelectorAll('[data-folder-choice]').forEach(x=>x.onclick=()=>selectFolder(x.dataset.folderChoice));selectFolder(state._importFolder||state.currentFolder||'root')};
-    $('#manifestFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#manifestFileName').textContent=f.name;pendingFileName=f.name;try{const text=await f.text();pendingRows=/\.json$/i.test(f.name)?parseJson(text):parseTxt(text);renderPreview();toast(`Parsed ${pendingRows.length} item(s)`)}catch(err){pendingRows=[];renderPreview();toast(err.message||'Could not parse file')}};
-    $('#fetchManifest').onclick=async()=>{const url=$('#manifestUrl').value.trim();if(!url)return toast('Enter a TXT or JSON URL');try{const res=await fetch(url);if(!res.ok)throw new Error(`HTTP ${res.status}`);const text=await res.text();pendingRows=/\.json(?:[?#].*)?$/i.test(url)?parseJson(text):parseTxt(text);pendingFileName=url;renderPreview();toast(`Successfully Done ☑️ — ${pendingRows.length} item(s) fetched`)}catch{toast('Fetch failed — check URL and CORS permissions')}};
-    $('#addNewFolder').onclick=()=>{const parent=findFolder(state._importFolder||state.currentFolder)||state.folders[0],name=prompt(`Create folder inside “${parent.name}”`);if(!String(name||'').trim())return;const f=childFolder(parent,name);state._importFolder=f.id;state.currentFolder=f.id;save();rebuild();renderFolders();fillFolderSelect();toast(`Folder “${f.name}” created inside ${parent.name}`)};
-    $('#newSubfolder').onclick=()=>{const parent=findFolder(state._importFolder||state.currentFolder)||state.folders[0],name=prompt(`Create subfolder inside “${parent.name}”`);if(!String(name||'').trim())return;const f=childFolder(parent,name);state._importFolder=f.id;state.currentFolder=f.id;save();rebuild();renderFolders();fillFolderSelect();toast(`Subfolder “${f.name}” created inside ${parent.name}`)};
-    $('#confirmImport').onclick=()=>{if(!pendingRows.length)return toast('Preview at least one item first');const dest=findFolder(state._importFolder||state.currentFolder)||state.folders[0];if(!dest)return toast('Select a destination folder');let added=0;pendingRows.forEach(x=>{if(!x?.url)return;let target=dest;;if(x.batch)target=childFolder(target,x.batch);if(x.subject)target=childFolder(target,x.subject);if(x.topic)target=childFolder(target,x.topic);target.items=target.items||[];target.items.push({id:crypto.randomUUID(),title:String(x.title||'').trim()||x.url.split('/').pop()?.split('?')[0]||'Imported resource',url:String(x.url).trim(),kind:x.type==='pdf'?'pdf':'video',subject:x.subject||'',topic:x.topic||''});added++});if(!added)return toast('No valid items found to add');state.currentFolder=dest.id;state._importFolder=dest.id;save();pendingRows=[];renderPreview();renderFolders();renderHome();fillFolderSelect();toast(`Successfully Done ☑️ — ${added} item(s) added to ${dest.name}`);rebuild()};
-    $('#clearImport').onclick=()=>{pendingRows=[];renderPreview()};renderPreview();
-  }
-
-  function mountSettings(){
-    const p=$('#settings');if(!p||state.user?.role!=='admin')return;
-    const tree=()=>{const render=(f,d=0)=>{const children=folderChildren(f),checked=(state.settings.guestFolders||[]).includes(f.id),nodeId='perm-'+String(f.id).replace(/[^a-zA-Z0-9_-]/g,'_');return `<div class="permission-tree-node"><div class="permission-tree-row" style="padding-left:${8+d*14}px"><button class="permission-tree-toggle ${children.length?'':'empty'}" type="button" data-perm-toggle="${esc(nodeId)}" aria-expanded="${children.length?'true':'false'}">${children.length?'▾':''}</button><label class="permission-tree-label"><input type="checkbox" data-guest-folder="${esc(f.id)}" ${checked?'checked':''}><span>📁 ${esc(f.name)}</span></label></div>${children.length?`<div class="permission-tree-children" id="${esc(nodeId)}" hidden>${children.map(x=>render(x,d+1)).join('')}</div>`:''}
-</div>`};return (state.folders||[]).map(f=>render(f)).join('')||'<div class="muted" style="padding:12px">No folders yet.</div>'};
-    p.innerHTML=`<div class="hero glass"><div class="muted">PREFERENCES & ACCESS</div><h1>Settings</h1><p class="muted">Manage Admin credentials and Guest folder permissions.</p></div><div class="settings-grid"><div class="settings-card glass"><h3>🔐 Admin account</h3><p class="settings-note">Change the Admin username and password used by this browser.</p><div class="form"><div class="field"><label>Admin username</label><input id="adminUser" value="${esc(state.settings.adminUsername)}" autocomplete="off"></div><div class="field"><label>Current password</label><input id="adminCurrent" type="password"></div><div class="field"><label>New password</label><input id="adminNew" type="password"></div><button class="btn" id="saveAdmin">Save Admin Login</button></div></div><div class="settings-card glass"><h3>👤 Guest access</h3><p class="settings-note">Choose Guest permissions from the folder hierarchy. Expand/collapse folders as needed.</p><div class="permission-list" id="guestFolderList">${tree()}</div><button class="btn" style="margin-top:12px;width:30%; display: block" id="saveGuestPerm">Save Guest Permissions</button></div><div class="settings-card glass"><h3>👥 Guest users</h3><p class="settings-note">Only Guest accounts created here can log in.</p><div class="form"><div class="field"><label>Guest username</label><input id="newGuestUser" autocomplete="off"></div><div class="field"><label>Guest password</label><input id="newGuestPass" type="password"></div><button class="btn" id="addGuest">＋ Add Guest User</button></div><div class="permission-list">${state.settings.users.map(u=>`<div class="permission-row"><span style="flex:1">👤 <b>${esc(u.username)}</b></span><button class="btn secondary" type="button" data-del-user="${esc(u.id)}">Remove</button></div>`).join('')}</div></div><div class="settings-card glass"><h3>◐ Theme</h3><p class="settings-note">Use the theme button in the top-right corner.</p><button class="btn secondary" id="openTheme">Open Theme</button></div></div>`;
-    $$('[data-perm-toggle]').forEach(b=>b.onclick=()=>{const box=$('#'+b.dataset.permToggle);if(!box)return;const open=box.hidden;box.hidden=!open;b.textContent=open?'▾':'▸';b.setAttribute('aria-expanded',String(open))});
-    $('#saveAdmin').onclick=()=>{const u=$('#adminUser').value.trim(),cur=$('#adminCurrent').value,next=$('#adminNew').value;if(!u)return toast('Admin username cannot be empty');if(cur!==state.settings.adminPassword)return toast('Current password is incorrect');if(!next)return toast('Enter a new password');if(next===cur)return toast('New password must be different from current password');state.settings.adminUsername=u;state.settings.adminPassword=next;save();toast('Successfully Done ☑️ — Admin login updated');mountSettings()};
-    $('#saveGuestPerm').onclick=()=>{const ids=$$('[data-guest-folder]:checked').map(x=>x.dataset.guestFolder);state.settings.guestFolders=ids.length?ids:[state.folders?.[0]?.id||'root'];save();toast('Successfully Done ☑️ — Guest permissions saved')};
-    $('#addGuest').onclick=()=>{const username=$('#newGuestUser').value.trim(),password=$('#newGuestPass').value;if(!username||!password)return toast('Guest username and password are required');if(state.settings.users.some(u=>u.username.toLowerCase()===username.toLowerCase()))return toast('That Guest username already exists');state.settings.users.push({id:'guest-'+Date.now(),username,password,role:'guest'});save();toast('Successfully Done ☑️ — Guest user added');mountSettings()};
-    $$('[data-del-user]').forEach(b=>b.onclick=()=>{if(state.settings.users.length<=1)return toast('Keep at least one Guest account');state.settings.users=state.settings.users.filter(u=>u.id!==b.dataset.delUser);save();toast('Successfully Done ☑️ — Guest user removed');mountSettings()});
-    $('#openTheme').onclick=()=>$('#v14Theme')?.click();
-  }
-
-  function mediaKind(url){const clean=String(url||'').split('#')[0].split('?')[0].toLowerCase();if(/\.m3u8$/.test(clean)||/(?:^|\/)master\.m3u8$/.test(clean)||/(?:^|\/)(?:vod|playlist-vod)\.m3u8$/.test(clean))return'hls';if(/\.mp4$/.test(clean))return'mp4';return'other'}
-  function loadVideo(url,autoplay=false,onReady=null){const video=$('#video');if(!video)return;if(!url)return toast('No video URL');const kind=mediaKind(url);if(kind==='other')return toast('Unsupported video URL. Use .m3u8, master.m3u8, vod.m3u8, playlist-vod.m3u8 or .mp4');try{hls?.destroy()}catch{}hls=null;video.pause();video.removeAttribute('src');video.load();if(kind==='hls'){if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;video.load()}else if(window.Hls&&Hls.isSupported()){hls=new Hls({enableWorker:true,lowLatencyMode:false});hls.loadSource(url);hls.attachMedia(video);hls.on(Hls.Events.ERROR,(_,data)=>{if(data?.fatal)toast('HLS stream could not be played: '+(data.details||'Playback error'));});}else return toast('HLS playback is not available in this browser.')}else{video.src=url;video.load()}const ready=()=>{onReady?.();if(autoplay)video.play()?.catch(()=>{})};video.addEventListener('loadedmetadata',ready,{once:true});if(autoplay)setTimeout(()=>video.play()?.catch(()=>{}),250);setTimeout(syncQuality,700);}
-  function playItem(id,{autoplay=true,pip=false}={}){const vids=flatVideo(folder()),i=vids.findIndex(x=>x.id===id);if(i<0)return;state.currentIndex=i;state.locked=false;const shell=$('#playerShell');if(shell){shell.classList.remove('lock');const lock=$('#playerLockV9');if(lock){lock.textContent='🔒';lock.title='Lock controls'}}const item=vids[i];$('#videoTitle').textContent=item.title||'Video';loadVideo(item.url,autoplay,async()=>{if(!pip||!document.pictureInPictureEnabled)return;try{if(document.pictureInPictureElement!==$('#video'))await $('#video').requestPictureInPicture()}catch{toast('PiP unavailable')}});save();renderHome();renderFinalPlaylist()}
-  function fmt(t){if(!isFinite(t))return'0:00';const m=Math.floor(t/60),s=Math.floor(t%60).toString().padStart(2,'0');return`${m}:${s}`}
-  function changeIndex(d){const vids=flatVideo(folder()),n=state.currentIndex+d;if(n>=0&&n<vids.length)playItem(vids[n].id);else if(n>=vids.length&&state.loop&&vids.length)playItem(vids[0].id)}
-  function setSpeedExact(n){state.speed=n;$('#video').playbackRate=n;$('#speed').textContent=n+'x';save()}
-  function syncQuality(){const sel=$('#qualitySelect');if(!sel)return;const wanted=[144,240,340,360,480,720,1020];const current=sel.value;sel.innerHTML='<option value="auto">Quality</option>'+wanted.map(v=>`<option value="${v}">${v}p</option>`).join('');if(wanted.map(String).includes(current))sel.value=current;if(hls?.levels?.length){[...sel.options].forEach(o=>{if(o.value!=='auto')o.title=hls.levels.some(l=>Number(l.height)===Number(o.value))?`Source ${o.value}p`:`Nearest available source will be used`})}}
-
-  function renderFinalPlaylist(){const list=$('#playerPlaylistList');if(!list)return;const vids=flatVideo(folder()),current=vids[state.currentIndex];list.innerHTML=vids.map((v,i)=>`<button type="button" class="pp-item ${current&&v.id===current.id?'current':''}" data-id="${esc(v.id)}"><span class="pp-num">${i+1}</span><span class="pp-thumb">▶</span><span class="pp-title">${esc(v.title||'Video')}</span></button>`).join('')||'<div style="color:#fff8;padding:12px">No videos in this folder.</div>';list.querySelectorAll('.pp-item').forEach(b=>b.onclick=()=>{playItem(b.dataset.id);$('#playerPlaylistPanel')?.classList.add('open')});scrollPlaylistToCurrent()}
-  function scrollPlaylistToCurrent(){const l=$('#playerPlaylistList');if(!l)return;const cur=l.querySelector('.pp-item.current');if(!cur)return;const items=[...l.querySelectorAll('.pp-item')],idx=items.indexOf(cur);if(idx<0)return;const target=items[Math.max(0,idx-1)];if(target)l.scrollTo({top:target.offsetTop,behavior:'smooth'})}
-
-  function setupPlayer(){const video=$('#video'),shell=$('#playerShell');if(!video||!shell)return;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
-    // Final player header/controller layout: back + lock + title, preserved from the final player UX.
-    const ptop=$('#playerShell .p-top');
-    if(ptop){const oldLock=$('#lock');oldLock?.remove();let left=ptop.querySelector('.p-top-left');if(!left){const title=$('#videoTitle');left=document.createElement('div');left.className='p-top-left';const back=document.createElement('button');back.id='playerBackBtn';back.className='player-top-btn';back.type='button';back.title='Back';back.textContent='←';back.onclick=e=>{e.preventDefault();e.stopPropagation();nav('explore')};if(title){title.remove();left.append(back,title)}else left.append(back);ptop.insertBefore(left,ptop.firstChild)}let lock=$('#playerLockV9');if(!lock){lock=document.createElement('button');lock.id='playerLockV9';lock.className='player-top-btn';lock.type='button';lock.title='Lock controls';lock.textContent='🔒';lock.onclick=e=>{e.preventDefault();e.stopPropagation();shell.classList.toggle('lock');state.locked=shell.classList.contains('lock');lock.textContent=state.locked?'🔓':'🔒';lock.title=state.locked?'Controls locked — unlock':'Lock controls';save()};ptop.insertBefore(lock,left.nextSibling)}if(state.locked){shell.classList.add('lock');lock.textContent='🔓';lock.title='Controls locked — unlock'}}
-    $('#unlock').onclick=e=>{e.preventDefault();e.stopPropagation();shell.classList.remove('lock');state.locked=false;const l=$('#playerLockV9');if(l){l.textContent='🔒';l.title='Lock controls'}save()};
-    document.addEventListener('fullscreenchange',async()=>{const fs=document.fullscreenElement;$('#full').title=fs?'Exit fullscreen':'Fullscreen';if(fs===video&&shell!==video){try{if(document.pictureInPictureElement===video)await document.exitPictureInPicture()}catch{}try{shell.classList.remove('lock');state.locked=false;const l=$('#playerLockV9');if(l){l.textContent='🔒';l.title='Lock controls'}save();await shell.requestFullscreen()}catch{}}});
-    $('#play').onclick=$('#centerPlay').onclick=()=>video.paused?video.play():video.pause();video.onplay=()=>{$('#play').textContent='⏸';$('#centerPlay').textContent='⏸'};video.onpause=()=>{$('#play').textContent='▶';$('#centerPlay').textContent='▶'};video.ontimeupdate=()=>{$('#current').textContent=fmt(video.currentTime);$('#progress').value=video.duration?video.currentTime/video.duration*100:0};video.onloadedmetadata=()=>$('#duration').textContent=fmt(video.duration);$('#progress').oninput=e=>{if(video.duration)video.currentTime=video.duration*e.target.value/100};
-    $('#prev').onclick=()=>changeIndex(-1);$('#next').onclick=()=>changeIndex(1);video.onended=()=>{if(state.loop)changeIndex(1);renderFinalPlaylist()};$('#loop').onclick=()=>{state.loop=!state.loop;$('#loop').style.color=state.loop?'var(--b)':'';save()};
-    $('#aspect').onclick=()=>{const modes=['contain','cover','fill'];state.aspect=modes[(modes.indexOf(state.aspect)+1)%3];video.style.objectFit=state.aspect};
-    $('#speedDown').onclick=()=>setSpeedExact(Math.max(.05,Math.round((video.playbackRate-.05)*100)/100));$('#speedUp').onclick=()=>setSpeedExact(Math.min(4,Math.round((video.playbackRate+.05)*100)/100));
-    $('#speed').onclick=()=>{let n=prompt('Speed: 0.7, 1, 1.5, 2, 2.5, 3, 3.2, 3.5, 4',video.playbackRate);if(n&&Number(n)>0&&Number(n)<=4)setSpeedExact(Number(n))};setSpeedExact(state.speed||1);
-    $('#pip').onclick=async()=>{try{await video.requestPictureInPicture()}catch{toast('PiP unavailable')}};$('#full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await shell.requestFullscreen()}catch{toast('Fullscreen unavailable')}};
-    const mute=document.createElement('button');mute.id='muteV11';mute.className='ctrl';mute.type='button';mute.onclick=()=>{video.muted=!video.muted;syncMute()};const syncMute=()=>{mute.textContent=video.muted?'🔇':'🔊';mute.title=video.muted?'Unmute':'Mute'};video.addEventListener('volumechange',syncMute);syncMute();
-    const quality=$('#qualitySelect');quality.className='ctrl';quality.title='Select video quality';
-    const row=$('#playerShell .p-bottom .controls');const full=$('#full'),pip=$('#pip');row.insertBefore(mute,quality);row.insertBefore(quality,pip);quality.onchange=()=>{const wanted=quality.value;if(wanted==='auto'){if(hls)hls.currentLevel=-1;return}if(!hls?.levels?.length){quality.value='auto';return}const target=Number(wanted),levels=hls.levels.map((lv,i)=>({i,h:Number(lv.height||0)})).filter(x=>x.h);const best=levels.find(x=>x.h===target)||levels.reduce((a,b)=>Math.abs(b.h-target)<Math.abs(a.h-target)?b:a);hls.currentLevel=best.i};
-    // Final gesture behavior, merged directly instead of an override.
-    let g=null,hud=$('#gestureHud');if(!hud){hud=document.createElement('div');hud.id='gestureHud';hud.className='gesture-hud-v9';shell.appendChild(hud)}let hudTimer;const showHud=(icon,label,val)=>{hud.innerHTML=`<div>${icon} ${label}</div><small>${val}</small>`;hud.classList.add('show');clearTimeout(hudTimer);hudTimer=setTimeout(()=>hud.classList.remove('show'),700)};const applyBrightness=d=>{const n=Math.max(.25,Math.min(2,parseFloat(video.dataset.brightness||'1')+d));video.dataset.brightness=n;video.style.filter=`brightness(${n})`;showHud('☀','Brightness',Math.round(n*100)+'%')};const applyVolume=d=>{const n=Math.max(0,Math.min(1,(video.volume||0)+d));video.volume=n;if(n>0)video.muted=false;showHud(n?'🔊':'🔇','Volume',Math.round(n*100)+'%')};
-    shell.addEventListener('pointerdown',e=>{if(e.target.closest('.controls,.p-top,.p-bottom,.center-play,#unlock,#playerPlaylistPanel,button,input'))return;const r=shell.getBoundingClientRect();g={x:e.clientX,y:e.clientY,lastY:e.clientY,side:e.clientX-r.left<r.width/2,moved:false,id:e.pointerId};try{shell.setPointerCapture(e.pointerId)}catch{}} ,{passive:false});shell.addEventListener('pointermove',e=>{if(!g)return;const dy=e.clientY-g.lastY;if(Math.abs(e.clientY-g.y)>8){g.moved=true;e.preventDefault()}if(Math.abs(dy)>0){g.side?applyBrightness(-dy/500):applyVolume(-dy/500);g.lastY=e.clientY}},{passive:false});shell.addEventListener('pointerup',e=>{if(g?.moved)e.preventDefault();g=null},{passive:false});shell.addEventListener('pointercancel',()=>g=null);
-    $('#playerLockV9')?.addEventListener('click',()=>{});
-    // Double-tap seek.
-    let lastTap=0;shell.addEventListener('pointerup',e=>{if(e.target.closest('button,input,.controls,.p-top,.p-bottom,#playerPlaylistPanel'))return;const now=performance.now();if(now-lastTap<380){const r=shell.getBoundingClientRect(),rel=(e.clientX-r.left)/r.width;const sec=rel<.22?-15:rel>.78?15:rel<.5?-5:5;video.currentTime=Math.max(0,Math.min(video.duration||1e15,video.currentTime+sec));showHud(sec>0?'↷':'↶','Seek',Math.abs(sec)+' sec')}lastTap=now});
-  }
-
-  function setupFinalPlayerUI(){const shell=$('#playerShell');if(!shell)return;const row=$('#playerShell .p-bottom .controls');
-    let btn=$('#playerPlaylistBtn');if(!btn){btn=document.createElement('button');btn.id='playerPlaylistBtn';btn.className='ctrl';btn.type='button';btn.textContent='☷';btn.title='Open playlist';const full=$('#full');full?row.insertBefore(btn,full):row.appendChild(btn)}
-    if(!$('#playerPlaylistPanel')){const panel=document.createElement('div');panel.id='playerPlaylistPanel';panel.innerHTML='<div class="pp-head"><span>Playlist</span><button type="button" class="ctrl" id="closePlayerPlaylist">×</button></div><div class="pp-list" id="playerPlaylistList"></div>';shell.appendChild(panel)}
-    btn.onclick=()=>{const p=$('#playerPlaylistPanel');p.classList.toggle('open');if(p.classList.contains('open')){renderFinalPlaylist();scrollPlaylistToCurrent()}};$('#closePlayerPlaylist').onclick=()=>$('#playerPlaylistPanel').classList.remove('open');renderFinalPlaylist();
-  }
-
-  function setupTheme(){const top=$('.top-actions');if(!top)return;top.innerHTML=`<div id="v14TopArea"><div class="v14-user-row"><button class="v14-top-btn" id="v14Logout" title="Logout" aria-label="Logout"><svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-7"/></svg></button><button class="v14-top-btn v14-user-btn" id="v14User" title="Current user" aria-label="Current user"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M15 21a7 7 0 0 1 14 0"/></svg><span class="v14-user-name"></span></button></div><button class="v14-top-btn v14-settings-btn" id="v14Settings">⚙</button><div class="v14-clock" id="v14Clock">12:00:00 AM</div><button class="v14-top-btn v14-theme-btn" id="v14Theme">◐</button></div><div class="v14-theme-layer" id="v14ThemeLayer" aria-hidden="true"><div class="v14-theme-blur"></div><button class="v14-theme-choice" data-theme-v14="light"><span>☀️</span></button><button class="v14-theme-choice" data-theme-v14="dark"><span>🌙</span></button><button class="v14-theme-choice" data-theme-v14="ocean"><span>🌊</span></button><button class="v14-theme-choice" data-theme-v14="forest"><span>🌲</span></button><button class="v14-theme-choice" data-theme-v14="rose"><span>🌹</span></button><button class="v14-theme-choice" data-theme-v14="lavender"><span>🪻</span></button><button class="v14-theme-choice" data-theme-v14="sunset"><span>🌅</span></button></div><div class="v14-theme-name" id="v14ThemeName"></div>`;
-    const theme=$('#v14Theme'),layer=$('#v14ThemeLayer'),user=$('#v14User'),settings=$('#v14Settings');const close=()=>{layer.classList.remove('open');layer.setAttribute('aria-hidden','true');$('#v14ThemeName').classList.remove('show')};theme.onclick=e=>{e.stopPropagation();layer.classList.toggle('open');layer.setAttribute('aria-hidden',String(!layer.classList.contains('open')));syncTheme()};layer.querySelectorAll('[data-theme-v14]').forEach(b=>b.onclick=e=>{e.stopPropagation();setTheme(b.dataset.themeV14);close()});$('#v14Logout').onclick=()=>{state.user=null;save();showLogin()};user.onclick=()=>{if(state.user?.role==='admin')nav('settings')};settings.onclick=()=>nav('settings');document.addEventListener('click',e=>{if(!layer.contains(e.target)&&e.target!==theme)close()});
-    let timer;const names={light:'Light',dark:'Dark',ocean:'Ocean',forest:'Forest',rose:'Rose',lavender:'Lavender',sunset:'Sunset'};theme.addEventListener('mousedown',()=>{timer=setTimeout(()=>{$('#v14ThemeName').textContent=(theme.textContent||'')+' '+names[state.theme];$('#v14ThemeName').classList.add('show')},550)});['mouseup','mouseleave'].forEach(ev=>theme.addEventListener(ev,()=>clearTimeout(timer)));const clock=()=>{const d=new Date();let h=d.getHours()%12;if(!h)h=12;$('#v14Clock').textContent=String(h).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')+' '+(d.getHours()<12?'AM':'PM')};clock();setInterval(clock,1000);syncTheme();
-  }
-
-  function setupControllerScaler(){const shell=$('#playerShell');if(!shell)return;const box=document.createElement('div');box.id='playerUiScalerV14';box.title='Video controller UI size';box.innerHTML='<button id="v14ScaleMinus" type="button">−1</button><button id="v14ScaleValue" class="v14-scale-value" type="button">0</button><button id="v14ScalePlus" type="button">+1</button>';shell.appendChild(box);let step=Number(localStorage.getItem('sp_controller_ui_step')||0);step=Math.max(-5,Math.min(10,step));const row=$('#playerShell .p-bottom .controls');const apply=()=>{const scale=1+step/10;if(row){row.classList.add('v14-scaled');row.querySelectorAll(':scope > *').forEach(el=>el.style.setProperty('--v14-cscale',String(scale)))}$('#v14ScaleValue').textContent=step>0?'+'+step:String(step);$('#v14ScaleValue').title=step===0?'Real controller size':(step>0?`+${step*10}% controller size`:`${step*10}% controller size`);localStorage.setItem('sp_controller_ui_step',String(step))};$('#v14ScaleMinus').onclick=()=>{step=Math.max(-5,step-1);apply()};$('#v14ScaleValue').onclick=()=>{step=0;apply()};$('#v14ScalePlus').onclick=()=>{step=Math.min(10,step+1);apply()};apply()}
-
-  function login(){const form=$('#loginForm');if(!form)return;form.onsubmit=e=>{e.preventDefault();const name=$('#username').value.trim(),pass=$('#password').value;if(!name)return toast('Enter username');if(selectedRole==='admin'){if(name!==state.settings.adminUsername||pass!==state.settings.adminPassword)return toast('Invalid Admin username or password');state.user={name,role:'admin'}}else{const u=state.settings.users.find(x=>x.username===name&&x.password===pass);if(!u)return toast('Invalid Guest username or password');state.user={name:u.username,role:'guest',userId:u.id}}ensureGuestFolder();save();openApp();toast('Welcome to Study Premium')};}
-
-  // Initialization
-  ensureSettings();
-  normalizeFolders();
-  if(!state.folders?.length)state.folders=[{id:'root',name:'My Library',kind:'folder',items:[]}];
-  $$('[data-role]').forEach(b=>b.onclick=()=>{$$('[data-role]').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectedRole=b.dataset.role;showLogin()});
-  login();$('#guestBtn').onclick=e=>{e.preventDefault();toast('Enter your Guest username and password first')};
-  $$('.nav button,[data-page]').forEach(b=>b.onclick=()=>b.dataset.page&&nav(b.dataset.page));$('#logout').onclick=()=>{state.user=null;save();showLogin()};$('#mobileMenu').onclick=()=>$('#sidebar').classList.toggle('mobile-open');$('.sidebar .brand').onclick=()=>$('#sidebar').classList.toggle('collapsed');
-  $('#search')?.addEventListener('input',renderFolders);
-  $('#newFolder')?.addEventListener('click',()=>createFolder(state.currentFolder));
-  $('#selectAll')?.addEventListener('click',()=>{
-    const boxes=[...$('#folders')?.querySelectorAll('[data-exp-select]:not(:disabled)')||[]];
-    if(!boxes.length)return;
-    const shouldSelect=boxes.some(box=>!box.checked);
-    boxes.forEach(box=>box.checked=shouldSelect);
-  });
-  $('#deleteSelected')?.addEventListener('click',()=>{
-    const wrap=$('#folders');
-    const ids=[...wrap?.querySelectorAll('[data-exp-select]:checked:not(:disabled)')||[]].map(box=>box.dataset.expSelect);
-    if(!ids.length)return toast('No items selected');
-    if(!confirm(`Delete ${ids.length} selected item(s)? This cannot be undone.`))return;
-    const current=findFolder(state.currentFolder);
-    let removed=0;
-    ids.forEach(token=>{
-      const sep=token.indexOf(':');
-      const type=token.slice(0,sep),id=token.slice(sep+1);
-      if(type==='folder'){if(id!=='root'&&removeFolderById(id))removed++;}
-      else if(current&&removeFileById(current.id,id))removed++;
-    });
-    if(!removed)return toast('Nothing was deleted');
-    if(!findFolder(state.currentFolder))state.currentFolder=findParentFolder(current?.id||'root')?.id||'root';
-    state.currentIndex=-1;
-    refreshAfterMutation();
-    toast(`Successfully Done ☑️ — ${removed} item(s) deleted`);
-  });
-  $('#modalClose')?.addEventListener('click',()=>$('#modal').classList.add('hidden'));$('#modal')?.addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.add('hidden')});
-  setupTheme();setupPlayer();setupFinalPlayerUI();setupControllerScaler();
-  if(state.theme)setTheme(state.theme);if(state.user)openApp();else showLogin();
-})();
-</script>
+<script src="app.js"></script>
 </body>
-</html>
+</html>   
