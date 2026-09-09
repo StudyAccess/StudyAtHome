@@ -175,30 +175,71 @@ function loadVideo(url,title){
   var video=document.getElementById(CONFIG.PLAYER_ID);
   if(state.hlsInstance){state.hlsInstance.destroy();state.hlsInstance=null;}
   document.getElementById('ctrlTitle').textContent=title||url;
+
   var isHLS=/\.m3u8(\?|$)/i.test(url)||/master|playlist.*m3u8/i.test(url);
   var isPDF=/\.pdf(\?|$)/i.test(url);
   if(isPDF){openPDF(url,title);return;}
-  if(isHLS&&Hls.isSupported()){
-    var hls=new Hls({xhrSetup:function(xhr){xhr.withCredentials=false;},manifestLoadingMaxRetry:3,levelLoadingMaxRetry:3,fragLoadingMaxRetry:3,maxBufferLength:30,enableWorker:true});
-    hls.loadSource(url); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){});});
-    hls.on(Hls.Events.ERROR,function(e,data){
-      if(data.fatal){
-        if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
-          hls.destroy();
-          var pu=CONFIG.CORS_PROXY+encodeURIComponent(url);
-          var h2=new Hls(); h2.loadSource(pu); h2.attachMedia(video);
-          h2.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){});});
-          h2.on(Hls.Events.ERROR,function(e2,d2){if(d2.fatal)toast('Stream error: '+d2.details);});
-          state.hlsInstance=h2;
-        } else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){ hls.recoverMediaError(); }
-        else { toast('Error: '+data.details); hls.destroy(); }
-      }
-    });
-    state.hlsInstance=hls;
-  } else if(isHLS&&video.canPlayType('application/vnd.apple.mpegurl')){ video.src=url; video.play().catch(function(){}); }
-  else { video.src=url; video.play().catch(function(){}); }
-}
+
+  // Multiple proxy fallbacks
+  var proxies=[
+    '', // direct (no proxy)
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://cors-anywhere.herokuapp.com/'
+  ];
+  var proxyIdx=0;
+
+  function tryLoad(){
+    var source=proxies[proxyIdx]?proxies[proxyIdx]+encodeURIComponent(url):url;
+
+    if(isHLS&&Hls.isSupported()){
+      var hls=new Hls({
+        xhrSetup:function(xhr){xhr.withCredentials=false;},
+        manifestLoadingMaxRetry:2,
+        levelLoadingMaxRetry:2,
+        fragLoadingMaxRetry:2,
+        maxBufferLength:30,
+        enableWorker:true
+      });
+      hls.loadSource(source);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){});});
+      hls.on(Hls.Events.ERROR,function(e,data){
+        if(data.fatal){
+          if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
+            console.warn('[HLS] Proxy '+proxyIdx+' failed (403/blocked), trying next...');
+            hls.destroy();
+            proxyIdx++;
+            if(proxyIdx<proxies.length){tryLoad();}
+            else toast('All proxies failed. Stream may require auth/cookies.');
+          } else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){
+            hls.recoverMediaError();
+          } else {
+            toast('Error: '+data.details);
+            hls.destroy();
+          }
+        }
+      });
+      state.hlsInstance=hls;
+    } else if(isHLS&&video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=source;
+      video.play().catch(function(){});
+    } else {
+      video.src=source;
+      video.play().catch(function(){});
+      video.onerror=function(){
+        if(proxyIdx<proxies.length-1){
+          proxyIdx++;
+          tryLoad();
+        } else {
+          toast('Video failed to load (403). May need auth.');
+        }
+      };
+    }
+  }
+
+  tryLoad();
+}   
 function playNext(){ if(state.currentVideoIndex<state.currentPlaylist.length-1){state.currentVideoIndex++;playVideoAt(state.currentVideoIndex);} }
 function playPrev(){ if(state.currentVideoIndex>0){state.currentVideoIndex--;playVideoAt(state.currentVideoIndex);} }
 function playVideoAt(idx){ var item=state.currentPlaylist[idx]; if(!item)return; state.currentVideoIndex=idx; loadVideo(item.url,item.title); renderPlaylist(); renderSidePanels(); }
@@ -257,23 +298,65 @@ function parseTxt(text){
   var lines=text.split('\n').filter(function(l){return l.trim()!=='';});
   var count=0;
   lines.forEach(function(line){
-    var parts=line.split(',').map(function(p){return p.trim();});
-    var subject=null,topic=null,title=null,url=null;
-    if(parts.length===4){subject=parts[0];topic=parts[1];title=parts[2];url=parts[3];}
-    else if(parts.length===3){ if(parts[2].indexOf('http')===0){subject=parts[0];title=parts[1];url=parts[2];} else {subject=parts[0];topic=parts[1];url=parts[2];title=parts[2].split('/').pop();} }
-    else if(parts.length===2){ if(parts[1].indexOf('http')===0){title=parts[0];url=parts[1];} else {subject=parts[0];topic=parts[1];} }
-    else if(parts.length===1){ if(parts[0].indexOf('http')===0){url=parts[0];title=parts[0].split('/').pop();} else {subject=parts[0];} }
-    if(!url)return;
+    var parts=line.split(',').map(function(p){return p.trim();}).filter(function(p){return p!=='';});
+    if(parts.length<2)return;
+
+    // URL is ALWAYS the last field
+    var url=parts[parts.length-1];
+    if(url.indexOf('http')!==0)return;
+
+    // Everything before URL = folder hierarchy
+    var fields=parts.slice(0,parts.length-1);
+    var title=fields[fields.length-1]; // last non-url field = title
+    var hierarchy=fields.slice(0,fields.length-1); // rest = folder levels
+
+    // Determine which level each field belongs to
+    // Max 4 folder levels: Platform > Batch > Subject > Topic
+    var levels=['Platform','Batch','Subject','Topic'];
+    var folderNames=[];
+
+    // If hierarchy has 4 items: Platform,Batch,Subject,Topic
+    // If 3: could be Batch,Subject,Topic OR Platform,Subject,Topic
+    // We use position-based: always map to Platform,Batch,Subject,Topic
+    // but if fewer, start from the DEEPEST possible (skip missing top levels)
+    // User rule: if Platform missing -> start from Batch
+    // if Batch missing -> start from Subject (under Platform)
+
+    // Simplest logic: map fields left-to-right into [Platform,Batch,Subject,Topic]
+    // If fewer than 4, they fill from the RIGHT (deepest)
+    var maxLevels=4;
+    var startIdx=maxLevels-hierarchy.length;
+    for(var i=0;i<hierarchy.length;i++){
+      folderNames.push(hierarchy[i]);
+    }
+
+    // Build folder path: root > [Platform] > [Batch] > [Subject] > [Topic]
     var fid='root';
-    if(subject)fid=findOrCreateFolder(subject,'root');
-    if(topic)fid=findOrCreateFolder(topic,fid);
-    var isV=/\.(mp4|m3u8)$/i.test(url); var isP=/\.pdf$/i.test(url);
+    for(var j=0;j<folderNames.length;j++){
+      var levelIdx=startIdx+j;
+      var folderName=folderNames[j];
+      // If this is the first level and we have 4 fields, it's Platform
+      // If 3 fields, first is Batch (Platform is implicit root)
+      // We just create folders by name under current position
+      fid=findOrCreateFolder(folderName,fid);
+    }
+
+    var isV=/\.(mp4|m3u8)$/i.test(url);
+    var isP=/\.pdf$/i.test(url);
     var type=isV?'video':isP?'pdf':'file';
-    state.fileSystem.folders[fid].files.push({title:title||url.split('/').pop(),url:url,type:type,folderId:fid});
+
+    state.fileSystem.folders[fid].files.push({
+      title:title||url.split('/').pop(),
+      url:url,
+      type:type,
+      folderId:fid
+    });
     count++;
   });
-  saveState(); renderExplorer(); toast('Imported '+count+' items');
-}   
+  saveState();
+  renderExplorer();
+  toast('Imported '+count+' items');
+}     
 function initExploreView(){
   document.getElementById('exploreDeleteFolder').addEventListener('click',function(){
     if(!state.currentFolderId||state.currentFolderId==='root')return;
