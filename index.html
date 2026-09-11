@@ -2,375 +2,357 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
 <title>Study Premium Learning</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">   
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">   
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ═══════════════════ LOGIN PAGE ═══════════════════ -->
-<div id="loginPage" class="login-page">
-  <div class="login-bg">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
+<div class="bg-layer">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-brand">
+    <div class="logo">🎓</div>
+    <h1>Study Premium<br>Learning</h1>
+    <p>Your all-in-one premium study platform. Stream HLS videos, read PDFs, and organize content in a beautiful, glassmorphic interface.</p>
   </div>
-  <div class="login-card glass">
-    <div class="login-logo">
-      <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-      <h1>Study Premium</h1>
-      <p class="subtitle">Learning Platform</p>
-    </div>
+  <div class="glass login-card">
     <div class="login-tabs">
-      <button class="tab-btn active" data-tab="admin">Admin</button>
-      <button class="tab-btn" data-tab="guest">Guest</button>
+      <button class="active" onclick="switchLoginTab('admin')" id="tabAdmin">⚙️ Admin</button>
+      <button onclick="switchLoginTab('guest')" id="tabGuest">👤 Guest</button>
     </div>
-    <form id="loginForm">
-      <div class="input-group">
-        <i class="fas fa-user"></i>
-        <input type="text" id="loginUser" placeholder="Username" required>
+    <h2 id="loginTitle">Admin Login</h2>
+    <div class="sub" id="loginSub">Enter your admin credentials</div>
+    <div class="input-wrap">
+      <label>Username</label>
+      <span class="ico">👤</span>
+      <input id="loginUser" type="text" placeholder="Enter username" autocomplete="off">
+    </div>
+    <div class="input-wrap">
+      <label>Password</label>
+      <span class="ico">🔒</span>
+      <input id="loginPass" type="password" placeholder="Enter password" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <button class="hamburger" onclick="toggleSidebar()" id="hamburgerBtn" title="Toggle Sidebar">☰</button>
+    <div class="topbar-title">
+      <span class="glogo">🎓</span>
+      <span id="pageTitle">Home</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="top-actions"></div>
+  </div>
+
+  <div class="main">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <button class="nav-item active" data-page="home" onclick="goPage('home')"><span class="ico">🏠</span><span class="lbl">Home</span></button>
+      <button class="nav-item" data-page="add" onclick="goPage('add')"><span class="ico">➕</span><span class="lbl">Add File / Link</span></button>
+      <button class="nav-item" data-page="explore" onclick="goPage('explore')"><span class="ico">🗂️</span><span class="lbl">Explore</span></button>
+      <button class="nav-item" data-page="settings" id="settingsNav" onclick="goPage('settings')"><span class="ico">⚙️</span><span class="lbl">Settings</span></button>
+      <div style="flex:1"></div>
+      <button class="nav-item" onclick="doLogout()"><span class="ico">🚪</span><span class="lbl">Logout</span></button>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+      <!-- HOME PAGE: Contains Option A Video Player, Related lists, and Previous Watched -->
+      <div class="page active" id="page-home">
+        <div class="player-shell" id="mainPlayerShell">
+          <div class="player-stage ratio-fit" id="playerStage">
+            <video id="videoPlayer" playsinline></video>
+            <div class="loading-spin" id="loadSpin">⟳</div>
+            <div class="hud-vertical" id="hudVertical"><span class="tico" id="hudIco">🔆</span><div class="barv"><div class="fill" id="hudFill" style="height:50%"></div></div><span class="num" id="hudNum">50%</span></div>
+            <div class="center-x" id="centerX"><span class="big" id="centerIco">▶</span><span class="cap" id="centerCap"></span></div>
+            <div class="player-ui" id="playerUI">
+              <!-- Top Left: Lock controls UI toggle, Back button, Video title name -->
+              <div class="pui-grp pui-tl">
+                <button class="pui-btn sm" id="lockBtn" onclick="toggleLock()" title="Lock controls UI">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm3 8H9V6a3 3 0 0 1 6 0z"/></svg>
+                </button>
+                <button class="pui-btn sm hide-on-lock" onclick="playerHome()" title="Back to Library">⬅️</button>
+                <span class="vtitle hide-on-lock" id="videoTitle">Select a video to play</span>
+              </div>
+
+              <!-- Top Right: Loop toggle, Aspect ratio controller toggle, UI Scaler (action buttons) -->
+              <div class="pui-grp pui-tr hide-on-lock">
+                <button class="pui-btn sm" id="loopBtn" onclick="toggleLoop()" title="Loop Mode">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z"/></svg>
+                </button>
+                <button class="pui-btn sm" id="ratioBtn" onclick="toggleRatio()" title="Aspect Ratio (Fit/Stretch/Crop)">
+                  <svg id="ratioSvg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 3h18v18H3zM3 3v18M3 3h18"/></svg>
+                </button>
+                <!-- UI Scaler: direct action buttons (no popup toggle) — wraps to the right side -->
+                <div class="ui-scaler-wrap" id="uiScalerWrap">
+                  <button class="pui-btn sm" onclick="changeUIScale(-0.5)" title="Decrease UI Scale (-0.5)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
+                  </button>
+                  <span class="ui-scale-val" id="uiScaleVal" title="Current UI Scale">100%</span>
+                  <button class="pui-btn sm" onclick="changeUIScale(0.5)" title="Increase UI Scale (+0.5 upto 200%)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Center: Play/Pause Toggle (mid-left/right reverse, forward, brightness & volume icons are
+                   hidden — those are gesture-only: double-tap to seek, vertical swipe for brightness/volume) -->
+              <div class="pui-grp pui-center hide-on-lock">
+                <button class="pui-btn" id="centerPlayBtn" onclick="togglePlay()"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+              </div>
+
+              <!-- Bottom: Current Time + Progress Bar + Time Left/Total inline, then Navigation + Speed / Quality / Playlist / PiP / Fullscreen below -->
+              <div class="pui-grp pui-bottom hide-on-lock">
+                <div class="bar bar-inline">
+                  <span class="t t-inline" id="curTime">0:00</span>
+                  <div class="progress-track" id="progTrack">
+                    <div class="progress-buffered" id="progBuffered"></div>
+                    <div class="progress-fill" id="progFill"></div>
+                    <div class="progress-head" id="progHead"></div>
+                  </div>
+                  <span class="t t-inline" id="durTime">-0:00 / 0:00</span>
+                </div>
+                <div class="pui-bottom-row">
+                  <div class="left">
+                    <button class="pui-btn sm" onclick="prevVideo()" title="Previous Video"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M6 6h2v12H6zM20 6l-9 6 9 6z"/></svg></button>
+                    <button class="pui-btn sm" onclick="togglePlay()" id="miniPlayBtn" title="Play/Pause"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                    <button class="pui-btn sm" onclick="nextVideo()" title="Next Video"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M16 6h2v12h-2zM4 6l9 6-9 6z"/></svg></button>
+                  </div>
+                  <div class="right" id="rightControls">
+                    <span class="speed-chip" onclick="decSpeed()" title="Decrease playback speed (-0.05)">−0.05</span>
+                    <span class="speed-chip" id="speedVal" onclick="toggleMenu('speedMenu')" title="Current Speed / Speed menu">1.0x</span>
+                    <span class="speed-chip" onclick="incSpeed()" title="Increase playback speed (+0.1)">+0.1</span>
+                    <span class="speed-chip" id="qualityChip" onclick="toggleMenu('qualityMenu')" title="Quality Selector">Quality</span>
+                    <button class="pui-btn sm" onclick="togglePlaylist()" title="Playlist (Series list)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/></svg></button>
+                    <button class="pui-btn sm" onclick="togglePip()" title="Picture in Picture"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M19 7h-8v6h8zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18z"/></svg></button>
+                    <button class="pui-btn sm" onclick="toggleFullscreen()" title="Fullscreen / Exit Fullscreen"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
+                  </div>
+                </div>
+                <!-- Popup Menus -->
+                <div class="pui-menu" id="speedMenu"></div>
+                <div class="pui-menu" id="qualityMenu"></div>
+              </div>
+            </div>
+            <!-- playlist drawer -->
+            <div class="pl-drawer" id="plDrawer">
+              <h4>Playlist</h4>
+              <div id="plDrawerList"></div>
+            </div>
+          </div>
+
+          <!-- related lists -->
+          <div class="related-wrap" id="homeRelatedWrap">
+            <div class="related-col" id="relVideosCol">
+              <h3><span class="ico">🎬</span>Videos in this folder</h3>
+              <div class="related-scroll" id="relVideos"></div>
+            </div>
+            <div class="related-col" id="relPdfsCol">
+              <h3><span class="ico">📄</span>PDFs in this folder</h3>
+              <div class="related-scroll" id="relPdfs"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="playlist-section">
+          <div class="pl-toolbar">
+            <h2>📚 Previous Watched</h2>
+            <div class="layout-toggle">
+              <button id="gridBtn" class="active" onclick="setLayout('grid')">🔲</button>
+              <button id="listBtn" onclick="setLayout('list')">☰</button>
+            </div>
+          </div>
+          <div id="homePlaylist" class="playlist-grid"></div>
+        </div>
       </div>
-      <div class="input-group">
-        <i class="fas fa-lock"></i>
-        <input type="password" id="loginPass" placeholder="Password" required>
-        <i class="fas fa-eye pw-toggle" id="pwToggle"></i>
+
+      <!-- ADD -->
+      <div class="page" id="page-add">
+        <div class="add-layout">
+          <div class="add-left">
+            <div class="card">
+              <h3>📥 Add Content</h3>
+              <div class="method-tabs">
+                <button id="mtTxt" class="active" onclick="setMethod('txt')">📄 Text / JSON File</button>
+                <button id="mtUrl" onclick="setMethod('url')">🔗 Direct URL / Link</button>
+              </div>
+              <div id="txtMethod">
+                <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                  <div class="big">📤</div>
+                  <div style="font-weight:600;margin-bottom:4px">Drop or click to upload .txt / .json file</div>
+                  <div style="font-size:12px;color:var(--muted)">Supports Batch, Subject, Topic, Title, Url formats & JSON manifests</div>
+                  <input type="file" id="fileInput" accept=".txt,.json,text/plain,application/json" onchange="handleFileSelect(this)">
+                </div>
+                <div class="file-preview" id="fpBox">
+                  <div class="fp-head">
+                    <span class="fp-ico">📄</span>
+                    <div><div class="fp-name" id="fpName"></div><div class="fp-sub" id="fpSub"></div></div>
+                  </div>
+                </div>
+                <div class="parse-result" id="parseResult"></div>
+              </div>
+              <div id="urlMethod" style="display:none">
+                <div class="input-wrap">
+                  <label>Video / PDF URL or Manifest Link</label>
+                  <span class="ico">🔗</span>
+                  <input id="urlInput" type="text" placeholder="https://...mp4 / .m3u8 / .pdf / manifest.json">
+                </div>
+                <div class="input-wrap">
+                  <label>Title (optional for direct file)</label>
+                  <span class="ico">✏️</span>
+                  <input id="urlTitle" type="text" placeholder="My video title">
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:10px">
+                  <button class="tbtn primary" onclick="fetchUrlManifest()">⬇ Fetch Remote Manifest / Link</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+                <button class="btn-primary" style="max-width:200px" onclick="addParsedFlat()">✅ Add Content</button>
+                <button class="tbtn primary" onclick="addParsedToFolders()">🗂️ Add with Folders</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>🗂️ Choose Destination Folder</h3>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+                <button class="tbtn primary" onclick="createNewFolderFromAdd()">📁 New Folder</button>
+                <button class="tbtn" onclick="createSubfolderFromAdd()">↳ New Subfolder</button>
+                <span id="destinationLabel" style="font-size:13px;color:var(--muted);font-weight:600">Destination: Root (Home)</span>
+              </div>
+              <div class="exp-tree" id="addTree"></div>
+            </div>
+          </div>
+
+          <div class="add-right">
+            <div class="card preview-panel">
+              <h3>👁️ Preview</h3>
+              <div id="addPreview" style="color:var(--muted);font-size:13px;padding:10px 0">
+                <div style="text-align:center;padding:24px 0">
+                  <div style="font-size:36px;margin-bottom:8px">📄</div>
+                  Select a TXT/JSON file or fetch via URL to preview
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="login-error" id="loginError"></div>
-      <button type="submit" class="btn-primary">
-        <i class="fas fa-sign-in-alt"></i> Sign In
-      </button>
-    </form>
-    <div class="login-hint">
-      <small>Default Admin: <b>admin / admin123</b></small>
+
+      <!-- EXPLORE -->
+      <div class="page" id="page-explore">
+        <div class="crumb-bar" id="crumbBar"></div>
+        <div class="exp-toolbar" style="margin-bottom:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div id="expLeftBtns" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="tbtn" onclick="toggleSelectMode()" id="selectModeBtn">☑️ Select</button>
+            <button class="tbtn" onclick="selectAllItems()" id="selectAllBtn" style="display:none">✅ Select All</button>
+            <button class="tbtn" onclick="moveSelected()" id="moveBtn" style="display:none">📦 Move</button>
+            <button class="tbtn danger" onclick="deleteSelected()" id="delSelBtn" style="display:none">🗑️ Delete</button>
+          </div>
+          <button class="tbtn primary" onclick="goPage('add')">➕ Add Content</button>
+        </div>
+        <div id="exploreGrid"></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="card">
+          <h3>🔐 My Credentials</h3>
+          <div class="input-wrap" style="margin-bottom:12px">
+            <label>New Username</label>
+            <span class="ico">👤</span>
+            <input id="myNewUser" type="text">
+          </div>
+          <div class="input-wrap" style="margin-bottom:12px">
+            <label>New Password</label>
+            <span class="ico">🔒</span>
+            <input id="myNewPass" type="text">
+          </div>
+          <button class="btn-primary" onclick="updateMyCreds()" style="max-width:220px">Update My Credentials</button>
+        </div>
+
+        <div class="card">
+          <h3>👥 Guest Users</h3>
+          <div id="guestList"></div>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <input id="newGuestUser" placeholder="Guest username" style="flex:1;min-width:130px;padding:11px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);outline:none">
+            <input id="newGuestPass" placeholder="Guest password" style="flex:1;min-width:130px;padding:11px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);outline:none">
+            <button class="btn-primary" onclick="createGuest()" style="max-width:150px">Add Guest</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🔒 Data Access Permissions</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Select a user, then choose which folders they can access.</p>
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+            <select id="permUserSelect" style="flex:1;min-width:160px;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);outline:none"></select>
+            <button class="btn-primary" onclick="savePermissions()" style="max-width:180px">Save Permissions</button>
+          </div>
+          <div class="perm-tree" id="permTree"></div>
+        </div>
+
+        <div class="card">
+          <h3>🌐 CORS Streaming Proxies</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Bypass browser CORS &amp; OpaqueResponseBlocking errors when playing external HLS (.m3u8) or MP4 video links.</p>
+          <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+            <select id="corsProxySelect" style="flex:1;min-width:200px;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);outline:none"></select>
+            <button class="btn-primary" onclick="saveCorsProxySetting()" style="max-width:180px">Save Proxy</button>
+          </div>
+          <div class="input-wrap" id="customProxyWrap" style="display:none;margin-bottom:12px">
+            <label>Custom Proxy Prefix</label>
+            <span class="ico">🔗</span>
+            <input id="customProxyInput" type="text" placeholder="https://my-proxy:8443/?url=">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════ MAIN APP ═══════════════════ -->
-<div id="app" class="app hidden">
-
-  <!-- Top Bar -->
-  <header class="topbar glass">
-    <button class="icon-btn" id="sidebarToggle" title="Toggle Sidebar">
-      <i class="fas fa-bars"></i>
-    </button>
-    <div class="topbar-logo">
-      <div class="logo-icon small"><i class="fas fa-graduation-cap"></i></div>
-      <span class="logo-text">Study Premium Learning</span>
+<!-- Floating PiP Widget for Explorer / other pages -->
+<div class="pip-floating-widget" id="pipFloatingWidget">
+  <div class="pip-header">
+    <span class="pip-icon">🎬</span>
+    <span class="pip-title" id="pipFloatingTitle">Now Playing in PiP</span>
+    <button class="pip-btn" onclick="expandPipToHome()" title="Open on Home">⤢ Home</button>
+    <button class="pip-btn close" onclick="closePipWidget()" title="Close">✕</button>
+  </div>
+  <div class="pip-body">
+    <video id="pipFloatingVideo" playsinline></video>
+    <div class="pip-loading" id="pipFloatingSpin">⟳</div>
+    <div class="pip-overlay-ctrls">
+      <button class="pip-play-btn" onclick="togglePipVideoPlay()">▶</button>
     </div>
-    <div class="topbar-right">
-      <!-- Theme Pie Menu -->
-      <div class="theme-menu" id="themeMenu">
-        <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Themes">
-          <i class="fas fa-palette"></i>
-        </button>
-        <div class="theme-pie hidden" id="themePie">
-          <button class="theme-dot" data-theme="light" title="Light"><span class="dot dot-light"></span><small>Light</small></button>
-          <button class="theme-dot" data-theme="dark" title="Dark"><span class="dot dot-dark"></span><small>Dark</small></button>
-          <button class="theme-dot" data-theme="ocean" title="Ocean"><span class="dot dot-ocean"></span><small>Ocean</small></button>
-          <button class="theme-dot" data-theme="forest" title="Forest"><span class="dot dot-forest"></span><small>Forest</small></button>
-          <button class="theme-dot" data-theme="rose" title="Rose"><span class="dot dot-rose"></span><small>Rose</small></button>
-          <button class="theme-dot" data-theme="lavender" title="Lavender"><span class="dot dot-lavender"></span><small>Lavender</small></button>
-          <button class="theme-dot" data-theme="midnight" title="Midnight"><span class="dot dot-midnight"></span><small>Midnight</small></button>
-        </div>
-      </div>
-      <div class="user-info">
-        <span id="currentUserLabel">Admin</span>
-        <button class="icon-btn" id="logoutBtn" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
-      </div>
-    </div>
-  </header>
-
-  <div class="app-body">
-
-    <!-- Sidebar -->
-    <aside class="sidebar glass" id="sidebar">
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item active" data-page="home">
-            <i class="fas fa-home"></i>
-            <span class="nav-label">Home</span>
-          </li>
-          <li class="nav-item" data-page="addfile">
-            <i class="fas fa-plus-circle"></i>
-            <span class="nav-label">Add File / Link</span>
-          </li>
-          <li class="nav-item" data-page="explore">
-            <i class="fas fa-folder-open"></i>
-            <span class="nav-label">Explore</span>
-          </li>
-          <li class="nav-item" data-page="settings">
-            <i class="fas fa-cog"></i>
-            <span class="nav-label">Settings</span>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-
-    <!-- Content Area -->
-    <main class="content">
-
-      <!-- HOME PAGE -->
-      <section id="page-home" class="page-section">
-        <div class="home-layout">
-          <!-- Video Player Container -->
-          <div class="player-wrapper" id="playerWrapper">
-            <div class="video-container" id="videoContainer">
-              <video id="videoPlayer" playsinline></video>
-              <!-- Overlay Controls -->
-              <div class="player-overlay" id="playerOverlay">
-                <!-- Top Left -->
-                <div class="ctrl-top-left">
-                  <button class="ctrl-btn" id="ctrlLock" title="Lock UI"><i class="fas fa-lock"></i></button>
-                  <span class="video-title" id="videoTitle">No video selected</span>
-                </div>
-                <!-- Top Right -->
-                <div class="ctrl-top-right">
-                  <button class="ctrl-btn" id="ctrlLoop" title="Loop"><i class="fas fa-redo"></i></button>
-                  <button class="ctrl-btn" id="ctrlRatio" title="Aspect Ratio"><i class="fas fa-expand"></i></button>
-                  <div class="ui-scaler">
-                    <button class="ctrl-btn" id="scaleDown" title="UI Scale -"><i class="fas fa-minus"></i></button>
-                    <span class="scale-label" id="scaleLabel">100%</span>
-                    <button class="ctrl-btn" id="scaleUp" title="UI Scale +"><i class="fas fa-plus"></i></button>
-                  </div>
-                </div>
-                <!-- Left Side -->
-                <div class="ctrl-left">
-                  <button class="ctrl-btn" id="ctrlRewind30" title="-30s"><i class="fas fa-rotate-left"></i></button>
-                  <button class="ctrl-btn" id="ctrlRewind10" title="-10s"><i class="fas fa-backward"></i></button>
-                </div>
-                <!-- Center -->
-                <div class="ctrl-center">
-                  <button class="ctrl-btn ctrl-play" id="ctrlPlay" title="Play/Pause"><i class="fas fa-play"></i></button>
-                </div>
-                <!-- Right Side -->
-                <div class="ctrl-right">
-                  <button class="ctrl-btn" id="ctrlForward10" title="+10s"><i class="fas fa-forward"></i></button>
-                  <button class="ctrl-btn" id="ctrlForward30" title="+30s"><i class="fas fa-rotate-right"></i></button>
-                </div>
-                <!-- Volume/Brightness Overlay -->
-                <div class="gesture-overlay hidden" id="gestureOverlay">
-                  <div class="gesture-icon" id="gestureIcon"><i class="fas fa-volume-up"></i></div>
-                  <div class="gesture-bar"><div class="gesture-fill" id="gestureFill"></div></div>
-                  <span class="gesture-value" id="gestureValue">50%</span>
-                </div>
-                <!-- Bottom Bar -->
-                <div class="ctrl-bottom">
-                  <div class="progress-row">
-                    <span class="time-label" id="currentTime">0:00</span>
-                    <div class="progress-bar" id="progressBar">
-                      <div class="progress-buffer" id="progressBuffer"></div>
-                      <div class="progress-fill" id="progressFill"></div>
-                      <div class="progress-head" id="progressHead"></div>
-                    </div>
-                    <span class="time-label" id="timeLeft">-0:00</span>
-                  </div>
-                  <div class="ctrl-bottom-row">
-                    <div class="ctrl-bottom-left">
-                      <button class="ctrl-btn" id="ctrlPrev" title="Previous"><i class="fas fa-step-backward"></i></button>
-                      <button class="ctrl-btn" id="ctrlPlayBottom" title="Play/Pause"><i class="fas fa-play"></i></button>
-                      <button class="ctrl-btn" id="ctrlNext" title="Next"><i class="fas fa-step-forward"></i></button>
-                    </div>
-                    <div class="ctrl-bottom-right">
-                      <button class="ctrl-btn" id="speedDown" title="Speed -"><i class="fas fa-tachometer-alt"></i>−</button>
-                      <span class="speed-label" id="speedLabel">1.0x</span>
-                      <button class="ctrl-btn" id="speedUp" title="Speed +"><i class="fas fa-tachometer-alt"></i>+</button>
-                      <div class="ctrl-dropdown" id="speedMenu">
-                        <button class="ctrl-btn" id="speedMenuBtn"><i class="fas fa-gauge-high"></i> Speed</button>
-                        <div class="dropdown-menu hidden" id="speedDropdown">
-                          <div class="dd-item" data-speed="0.7">0.7x</div>
-                          <div class="dd-item" data-speed="1.0">1.0x</div>
-                          <div class="dd-item" data-speed="1.5">1.5x</div>
-                          <div class="dd-item" data-speed="2.0">2.0x</div>
-                          <div class="dd-item" data-speed="2.5">2.5x</div>
-                          <div class="dd-item" data-speed="3.0">3.0x</div>
-                          <div class="dd-item" data-speed="3.5">3.5x</div>
-                          <div class="dd-item" data-speed="4.0">4.0x</div>
-                        </div>
-                      </div>
-                      <div class="ctrl-dropdown" id="qualityMenu">
-                        <button class="ctrl-btn" id="qualityMenuBtn"><i class="fas fa-tv"></i> Quality</button>
-                        <div class="dropdown-menu hidden" id="qualityDropdown">
-                          <div class="dd-item" data-quality="1040">1040p</div>
-                          <div class="dd-item" data-quality="720">720p</div>
-                          <div class="dd-item" data-quality="480">480p</div>
-                          <div class="dd-item" data-quality="360">360p</div>
-                          <div class="dd-item" data-quality="240">240p</div>
-                          <div class="dd-item" data-quality="144">144p</div>
-                        </div>
-                      </div>
-                      <button class="ctrl-btn" id="ctrlPlaylist" title="Playlist"><i class="fas fa-list"></i></button>
-                      <button class="ctrl-btn" id="ctrlPip" title="Picture in Picture"><i class="fas fa-clone"></i></button>
-                      <button class="ctrl-btn" id="ctrlFullscreen" title="Fullscreen"><i class="fas fa-expand"></i></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Playlist Panel (slides in) -->
-              <div class="playlist-panel hidden" id="playlistPanel">
-                <div class="playlist-header">
-                  <h3><i class="fas fa-list"></i> Playlist</h3>
-                  <button class="icon-btn" id="closePlaylist"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="playlist-list" id="playlistList"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Playlist Below Player -->
-          <div class="home-playlist">
-            <div class="home-playlist-header">
-              <h3><i class="fas fa-folder-play"></i> Recent / Playlist</h3>
-              <div class="view-toggle">
-                <button class="view-btn active" id="viewGrid" title="Grid"><i class="fas fa-th"></i></button>
-                <button class="view-btn" id="viewList" title="List"><i class="fas fa-list-ul"></i></button>
-              </div>
-            </div>
-            <div class="playlist-grid" id="homePlaylist">
-              <div class="empty-state">
-                <i class="fas fa-video"></i>
-                <p>No videos yet. Add content from <b>Explore</b>.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ADD FILE PAGE -->
-      <section id="page-addfile" class="page-section hidden">
-        <h2 class="page-title"><i class="fas fa-plus-circle"></i> Add File / Link</h2>
-        <div class="addfile-layout">
-          <div class="glass-card">
-            <h3><i class="fas fa-link"></i> Add by URL</h3>
-            <div class="form-group">
-              <label>Title</label>
-              <input type="text" id="addTitle" placeholder="Video / PDF title">
-            </div>
-            <div class="form-group">
-              <label>URL</label>
-              <input type="url" id="addUrl" placeholder="https://... (mp4, m3u8, pdf)">
-            </div>
-            <div class="form-group">
-              <label>Type</label>
-              <select id="addType">
-                <option value="video">Video</option>
-                <option value="pdf">PDF</option>
-              </select>
-            </div>
-            <button class="btn-primary" id="btnAddUrl"><i class="fas fa-plus"></i> Add</button>
-          </div>
-
-          <div class="glass-card">
-            <h3><i class="fas fa-file-import"></i> Import from .txt File</h3>
-            <p class="hint">
-              Supported formats per line:<br>
-              <code>Batch|Subject|Topic|Title|Url</code><br>
-              <code>Subject|Title|Url</code><br>
-              <code>Title|Url</code><br>
-              <code>Url</code> (alone)<br>
-              Or multi-line: Subject / Topic / Title / Url
-            </p>
-            <input type="file" id="txtFileInput" accept=".txt" class="file-input">
-            <div id="txtPreview" class="txt-preview hidden"></div>
-            <button class="btn-primary" id="btnImportTxt" disabled><i class="fas fa-upload"></i> Import</button>
-          </div>
-
-          <!-- Folder Destination Picker -->
-          <div class="glass-card">
-            <h3><i class="fas fa-folder-tree"></i> Destination Folder</h3>
-            <div class="folder-picker" id="folderPicker">
-              <div class="folder-path" id="folderPath">/ (Root)</div>
-              <div class="folder-browse" id="folderBrowse"></div>
-              <button class="btn-secondary" id="btnNewFolder"><i class="fas fa-folder-plus"></i> New Folder</button>
-            </div>
-            <div id="confirmModal" class="modal hidden">
-              <div class="modal-content glass">
-                <h3>Confirm Add</h3>
-                <p>File: <b id="confirmFileName"></b></p>
-                <p>Location: <b id="confirmFolderLoc"></b></p>
-                <div class="modal-actions">
-                  <button class="btn-secondary" id="confirmCancel">Cancel</button>
-                  <button class="btn-primary" id="confirmOk">Confirm</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- EXPLORE PAGE -->
-      <section id="page-explore" class="page-section hidden">
-        <div class="explore-toolbar">
-          <div class="breadcrumb" id="exploreBreadcrumb">
-            <span class="bc-item active" data-path="">Root</span>
-          </div>
-          <div class="explore-actions">
-            <button class="btn-secondary" id="btnSelectAll"><i class="fas fa-check-square"></i> Select All</button>
-            <button class="btn-secondary" id="btnMove"><i class="fas fa-arrows-alt"></i> Move</button>
-            <button class="btn-danger" id="btnDelete"><i class="fas fa-trash"></i> Delete</button>
-            <button class="btn-secondary" id="btnGoRoot"><i class="fas fa-home"></i> Go Root</button>
-            <button class="btn-secondary" id="btnNewFolderExplore"><i class="fas fa-folder-plus"></i> New Folder</button>
-          </div>
-        </div>
-        <div class="explore-grid" id="exploreGrid"></div>
-      </section>
-
-      <!-- SETTINGS PAGE -->
-      <section id="page-settings" class="page-section hidden">
-        <h2 class="page-title"><i class="fas fa-cog"></i> Settings</h2>
-        <div class="settings-layout">
-          <div class="glass-card">
-            <h3><i class="fas fa-user"></i> User Details</h3>
-            <div class="form-group">
-              <label>Username</label>
-              <input type="text" id="settingsUsername" value="admin">
-            </div>
-            <div class="form-group">
-              <label>Change Password</label>
-              <input type="password" id="settingsNewPass" placeholder="New password">
-            </div>
-            <button class="btn-primary" id="btnSaveUser"><i class="fas fa-save"></i> Save</button>
-          </div>
-          
-          <div class="glass-card">
-            <h3><i class="fas fa-users"></i> All Users</h3>
-            <div id="guestList" class="guest-list"></div>
-            <div class="guest-add-row">
-              <input type="text" id="newGuestUser" placeholder="New guest username">
-              <input type="password" id="newGuestPass" placeholder="Password">
-              <button class="btn-primary" id="btnAddGuest"><i class="fas fa-plus"></i> Add Guest</button>
-            </div>
-          </div>
-          
-          <div class="glass-card">
-            <h3><i class="fas fa-shield-alt"></i> Folder Permissions</h3>
-            <p class="hint">Check folders that <b>all guest users</b> can access:</p>
-            <div id="permissionList" class="permission-list"></div>
-            <button class="btn-primary" id="btnSavePerms"><i class="fas fa-save"></i> Save Permissions</button>
-          </div>   
-      </section>
-
-    </main>
   </div>
 </div>
 
-<!-- PDF Viewer Modal -->
-<div id="pdfModal" class="modal hidden">
-  <div class="modal-content pdf-modal glass">
-    <div class="pdf-header">
-      <h3 id="pdfTitle">PDF Viewer</h3>
-      <div>
-        <button class="btn-secondary" id="pdfDownload"><i class="fas fa-download"></i> Download</button>
-        <button class="btn-danger" id="pdfClose"><i class="fas fa-times"></i> Close</button>
-      </div>
-    </div>
-    <iframe id="pdfFrame" class="pdf-frame"></iframe>
+<!-- PIE FAB -->
+<button id="pieFab" onclick="togglePie()">＋</button>
+<div class="pie-label" id="pieLabel"></div>
+
+<!-- TOAST + MODAL -->
+<div id="toast"></div>
+<div id="modal">
+  <div class="modal-card">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
   </div>
 </div>
 
 <script src="script.js"></script>
 </body>
-</html>   
+</html>
